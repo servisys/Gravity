@@ -24,6 +24,9 @@ jobs:
       - name: Extract game source
         run: unzip -o GRAVITY-MVP.zip -d .
 
+      - name: Apply visual refresh
+        run: python patches/apply_visual_refresh.py
+
       - name: Fix trailing CSS escape in uploaded source
         working-directory: gravity
         run: |
