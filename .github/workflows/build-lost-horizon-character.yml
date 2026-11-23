@@ -1,0 +1,93 @@
+name: Build THE LOST HORIZON explorer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "characters/lost-horizon-explorer.json"
+      - ".github/workflows/build-lost-horizon-character.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lost-horizon-character
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Ara character data
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ara3d
+          key: ara3d-data-0.9.0
+
+      - name: Generate rigged and animated GLB
+        run: |
+          npx --yes ara3d@0.9.0 export \
+            --params characters/lost-horizon-explorer.json \
+            --formats glb \
+            --detail medium \
+            --animations idle,walk,run,look_around \
+            --out out
+          MODEL="$(find out -maxdepth 1 -type f -name '*.glb' -print -quit)"
+          test -n "$MODEL"
+          mkdir -p assets
+          cp "$MODEL" assets/the-lost-horizon-explorer.glb
+
+      - name: Update source project
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("the-lost-horizon/index.html")
+          s = p.read_text()
+          old = "https://tevy.dev/models/hiker/v1/lod0.glb"
+          new = "../assets/the-lost-horizon-explorer.glb"
+          if old not in s:
+              raise SystemExit("Expected Hiker model URL not found in main source")
+          p.write_text(s.replace(old, new))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/the-lost-horizon-explorer.glb the-lost-horizon/index.html
+          git commit -m "Add rigged THE LOST HORIZON explorer model"
+          git push
+
+      - name: Checkout GitHub Pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: pages
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish model to Pages
+        run: |
+          mkdir -p pages/assets
+          cp assets/the-lost-horizon-explorer.glb pages/assets/the-lost-horizon-explorer.glb
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("pages/index.html")
+          s = p.read_text()
+          old = "https://tevy.dev/models/hiker/v1/lod0.glb"
+          new = "./assets/the-lost-horizon-explorer.glb"
+          if old not in s:
+              raise SystemExit("Expected Hiker model URL not found in Pages index")
+          p.write_text(s.replace(old, new))
+          PY
+          cd pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/the-lost-horizon-explorer.glb index.html
+          git commit -m "Publish rigged THE LOST HORIZON explorer"
+          git push origin gh-pages
