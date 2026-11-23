@@ -1,100 +1,125 @@
 <!doctype html>
-<!-- Fresh Pages deployment: avoid duplicated artifacts from the previous retry. -->
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>THE LOST HORIZON</title>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>THE LOST HORIZON — A New Dawn</title>
+<meta name="theme-color" content="#83b8b5">
 <style>
-:root{--gold:#e2c58b;--ink:#172820}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#a9c9c0;font-family:Arial,sans-serif}canvas{display:block;touch-action:none}
-#hud{position:fixed;inset:0;pointer-events:none;color:#fff4dc;text-shadow:0 2px 12px #14261dcc}
-#brand{position:absolute;top:25px;left:28px;font:600 12px Arial;letter-spacing:.28em}#brand b{display:block;font:normal 25px Georgia;letter-spacing:.16em;margin-bottom:5px}#brand small{font-size:9px;letter-spacing:.32em;color:#e4d5b2}
-#objective{position:absolute;right:28px;top:25px;text-align:right;font-size:9px;letter-spacing:.24em;color:#e9d6ae}#goal{display:block;margin-top:8px;font:18px Georgia;color:#fff4dc;letter-spacing:.02em}
-#progress{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}.pip{width:8px;height:8px;border:1px solid #e4cf9a;border-radius:50%}.pip.on{background:#e4cf9a;box-shadow:0 0 12px #e4cf9a}
-#hint{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);padding:12px 19px;border:1px solid #e7d5ad55;background:#152a22b8;backdrop-filter:blur(9px);border-radius:3px;font-size:11px;letter-spacing:.06em;text-align:center;max-width:90vw}
-#panel{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(480px,88vw);padding:34px;border:1px solid #c8ad79;background:linear-gradient(145deg,#1c352bfa,#101f1afa);text-align:center;pointer-events:auto;box-shadow:0 20px 80px #07140d88}#panel .eyebrow{font-size:9px;letter-spacing:.35em;color:var(--gold)}#panel h1{font:normal 28px Georgia;letter-spacing:.12em;margin:16px 0}#panel p{font:13px/1.8 Arial;color:#d8d1c1}button{cursor:pointer;background:var(--gold);color:#1b2b23;border:0;padding:14px 22px;letter-spacing:.16em;font-size:10px;font-weight:bold}
-#mobile{position:fixed;left:24px;bottom:28px;display:none;pointer-events:auto;touch-action:none}#stick{width:126px;height:126px;border:1px solid #f5e9ce88;border-radius:50%;background:#142b2288;backdrop-filter:blur(5px);position:relative;touch-action:none}#nub{position:absolute;width:48px;height:48px;border:1px solid #fff0d0aa;border-radius:50%;background:#dfc18b99;left:38px;top:38px;pointer-events:none}
-#interact{position:fixed;right:26px;bottom:42px;display:none;border-radius:50%;width:70px;height:70px;padding:0;font: bold 15px Arial;box-shadow:0 4px 25px #101c1688;touch-action:manipulation}
-#look{position:fixed;right:0;top:25%;height:48%;width:45%;pointer-events:none}
-@media(pointer:coarse){#mobile,#interact{display:block}#hint{bottom:165px;font-size:10px}#brand{top:17px;left:17px}#objective{top:17px;right:17px}#brand b{font-size:19px}}
-</style></head><body>
-<div id="hud"><div id="brand"><b>THE LOST HORIZON</b><small>FIELD JOURNAL · EXPEDITION 01</small></div>
-<div id="objective">OBIETTIVO<strong id="goal">Ritrova i tre sigilli</strong><div id="progress"><i class="pip"></i><i class="pip"></i><i class="pip"></i></div></div>
-<div id="hint">WASD per muoverti · trascina per guardarti intorno · E per interagire</div>
-<div id="panel"><div class="eyebrow">IL CUORE DELL'ISOLA</div><h1>LA SOGLIA SI È APERTA</h1><p>I tre sigilli hanno risvegliato il santuario. Dall'altra parte della soglia, qualcosa ha percepito la tua presenza.</p><button id="continue">PROSEGUI L'ESPLORAZIONE</button></div></div>
-<div id="mobile"><div id="stick"><div id="nub"></div></div></div><button id="interact">E</button>
+:root{color-scheme:dark;--gold:#e9c98a;--cream:#f2ead8;--ink:#102b2d}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#83b8b5;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}canvas{display:block;touch-action:none}
+#veil{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(8,30,35,.28),transparent 22%,transparent 65%,rgba(8,30,35,.32));z-index:2}
+#top{position:fixed;z-index:4;left:28px;top:24px;color:#fff;text-shadow:0 2px 14px #17383c;pointer-events:none}
+#eyebrow{font-size:10px;letter-spacing:.34em;font-weight:700;color:#f2d8a2;margin-bottom:8px}
+#title{font-family:Georgia,serif;font-size:clamp(22px,3vw,34px);letter-spacing:.13em;font-weight:400}
+#subtitle{font-size:11px;letter-spacing:.17em;color:#e2e9df;margin-top:6px}
+#objective{position:fixed;z-index:4;top:26px;right:28px;width:min(270px,40vw);padding:14px 17px;border:1px solid rgba(246,229,192,.35);background:rgba(13,42,43,.42);backdrop-filter:blur(12px);color:#f5efdf;pointer-events:none}
+#objective small{display:block;color:#e6c88f;font-size:9px;letter-spacing:.22em;margin-bottom:7px}
+#objective strong{font:16px Georgia,serif;font-weight:400}
+#progress{height:2px;background:rgba(255,255,255,.18);margin-top:12px}#progress i{display:block;height:100%;width:0;background:#e6c88f;transition:width .4s}
+#hint{position:fixed;z-index:4;bottom:28px;left:50%;transform:translateX(-50%);padding:10px 16px;border:1px solid rgba(255,255,255,.35);background:rgba(12,39,42,.42);backdrop-filter:blur(12px);color:#fff;font-size:11px;letter-spacing:.08em;white-space:nowrap;pointer-events:none;text-align:center}
+#cross{position:fixed;z-index:3;left:50%;top:50%;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.8);box-shadow:0 0 12px white;pointer-events:none}
+#intro{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:linear-gradient(110deg,rgba(7,29,32,.78),rgba(7,29,32,.2)),url('https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2000&q=85') center/cover;color:#f7f0df;transition:opacity .9s ease}
+#intro.hidden{opacity:0;pointer-events:none}
+#intro .panel{width:min(560px,86vw);padding:clamp(24px,5vw,54px);border:1px solid rgba(241,219,172,.35);background:rgba(9,31,34,.44);backdrop-filter:blur(14px);box-shadow:0 30px 100px #09232666}
+#intro .kicker{font-size:10px;letter-spacing:.35em;color:#e7c98d}
+#intro h1{font:clamp(42px,8vw,76px)/.95 Georgia,serif;font-weight:400;letter-spacing:.08em;margin:18px 0}
+#intro p{max-width:390px;color:#e4e5d9;font:15px/1.65 Georgia,serif}
+#start{margin-top:22px;padding:14px 25px;border:1px solid #e7c98d;background:#e7c98d;color:#173438;font-size:10px;font-weight:800;letter-spacing:.22em;cursor:pointer}
+#start:hover{background:#f5dfb1}
+#mobile{position:fixed;z-index:5;left:18px;bottom:22px;display:none;gap:8px;align-items:end}
+.pad{display:grid;grid-template-columns:repeat(3,42px);grid-template-rows:repeat(2,42px);gap:4px}
+.ctrl{border:1px solid #ffffff55;background:#123c3e88;color:white;border-radius:8px;font-size:17px;backdrop-filter:blur(8px);touch-action:none}
+.ctrl:active{background:#e5c88d;color:#183538}
+#interact{position:fixed;z-index:5;right:22px;bottom:30px;width:58px;height:58px;border-radius:50%;border:1px solid #f2d9a0;background:#183e40aa;color:#f4dfb2;display:none;font-size:10px;letter-spacing:.08em}
+#toast{position:fixed;z-index:6;left:50%;top:22%;transform:translate(-50%,-10px);opacity:0;transition:.4s;color:#fff;font:20px Georgia,serif;text-align:center;text-shadow:0 2px 15px #102e31;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:700px){#top{left:16px;top:15px}#subtitle{font-size:9px}#objective{top:15px;right:14px;width:155px;padding:10px}#objective strong{font-size:13px}#hint{bottom:105px;font-size:9px;max-width:88vw;white-space:normal}#mobile{display:flex}#interact{display:block}#cross{display:none}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<div id="veil"></div>
+<div id="top"><div id="eyebrow">AN INTERACTIVE MYSTERY</div><div id="title">THE LOST HORIZON</div><div id="subtitle">CHAPTER I — THE ISLAND THAT REMEMBERS</div></div>
+<div id="objective"><small>YOUR JOURNEY</small><strong id="task">Segui le pietre luminose</strong><div id="progress"><i id="bar"></i></div></div>
+<div id="cross"></div><div id="hint">WASD per muoverti · trascina per ruotare la visuale</div><div id="toast"></div>
+<div id="mobile"><div class="pad"><span></span><button class="ctrl" data-key="w">↑</button><span></span><button class="ctrl" data-key="a">←</button><button class="ctrl" data-key="s">↓</button><button class="ctrl" data-key="d">→</button></div></div><button id="interact">ESAMINA</button>
+<div id="intro"><div class="panel"><div class="kicker">A MYSTERY ADVENTURE</div><h1>THE LOST<br>HORIZON</h1><p>Un'isola dimenticata. Un richiamo che attraversa il tempo. Qualcosa, tra le rovine, ti sta aspettando.</p><button id="start">ENTRA NELL'ISOLA &nbsp; →</button></div></div>
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-const scene=new THREE.Scene();scene.background=new THREE.Color(0xa9c9c0);scene.fog=new THREE.FogExp2(0xa9c9c0,.0085);
-const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,260);
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.prepend(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xe4f5e9,0x58634a,2.15));const sun=new THREE.DirectionalLight(0xffe4b8,2.7);sun.position.set(-32,48,24);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-48;sun.shadow.camera.right=48;sun.shadow.camera.top=48;sun.shadow.camera.bottom=-48;sun.shadow.bias=-.0003;scene.add(sun);
-const mat=(c,r=.9,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
-const grass=mat(0x78905d),grass2=mat(0x91a66b),soil=mat(0x8b7957),bark=mat(0x684b35),leaf=mat(0x315d43),leaf2=mat(0x477a50),leaf3=mat(0x73965b),stone=mat(0x9a9278),stoneDark=mat(0x5d6557),gold=mat(0xd7b66d,.42,.35),water=mat(0x3f9d9c,.24,.15);
-function mesh(geo,ma,x,y,z,parent=scene){const o=new THREE.Mesh(geo,ma);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
-function box(x,y,z,a,b,c,ma,parent=scene){return mesh(new THREE.BoxGeometry(a,b,c),ma,x,y,z,parent)}
-// Island base, beach and layered terrain
-mesh(new THREE.CylinderGeometry(43,48,6,72),soil,0,-3.1,0);
-mesh(new THREE.CylinderGeometry(39,41,1.2,72),grass,0,-.3,0);
-mesh(new THREE.CylinderGeometry(54,54,1.5,72),water,0,-6.1,0);
-for(let i=0;i<24;i++){const a=i/24*Math.PI*2,r=33+Math.random()*5;const h=2+Math.random()*4;const hill=mesh(new THREE.DodecahedronGeometry(1,1),i%3?grass:grass2,Math.cos(a)*r,h*.25,Math.sin(a)*r);hill.scale.set(3+Math.random()*3,h,3+Math.random()*3)}
-// Organic tropical palms
-function palm(x,z,s=1,rot=0){const trunk=mesh(new THREE.CylinderGeometry(.16*s,.32*s,4.8*s,9),bark,x,2.2*s,z);trunk.rotation.z=(Math.random()-.5)*.16;trunk.rotation.x=(Math.random()-.5)*.14;const top=new THREE.Vector3(x,4.5*s,z);for(let j=0;j<8;j++){const a=rot+j*Math.PI/4;const len=(2.1+Math.random()*.5)*s;const end=new THREE.Vector3(x+Math.cos(a)*len,top.y-(.45+Math.random()*.5)*s,z+Math.sin(a)*len);const mid=top.clone().lerp(end,.5);const dir=end.clone().sub(top);const frond=mesh(new THREE.ConeGeometry(.32*s,len,7),j%3===0?leaf3:(j%2?leaf:leaf2),mid.x,mid.y,mid.z);frond.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());frond.rotation.z+=.18;}}
-for(let i=0;i<52;i++){const a=Math.random()*Math.PI*2,r=25+Math.random()*12;palm(Math.cos(a)*r,Math.sin(a)*r,.72+Math.random()*.6,a)}
-// Broadleaf clusters and undergrowth
-for(let i=0;i<90;i++){const a=Math.random()*Math.PI*2,r=8+Math.random()*23,x=Math.cos(a)*r,z=Math.sin(a)*r;for(let j=0;j<3;j++){const c=mesh(new THREE.IcosahedronGeometry(.65+Math.random()*.35,1),j%2?leaf:leaf2,x+(Math.random()-.5)*1.4,.45+Math.random()*.55,z+(Math.random()-.5)*1.4);c.scale.y=.7}}
-for(let i=0;i<65;i++){const a=Math.random()*Math.PI*2,r=7+Math.random()*26;const rock=mesh(new THREE.DodecahedronGeometry(.6+Math.random()*.8,0),i%3?stone:stoneDark,Math.cos(a)*r,.25,Math.sin(a)*r);rock.scale.y=.55;rock.rotation.set(Math.random(),Math.random(),Math.random())}
-// Ancient processional path
-for(let i=0;i<13;i++){const z=10-i*2.3;const p=box((Math.random()-.5)*.55,.03,z,4.8+Math.random()*.6,.18,1.8, i%3?stone:stoneDark);p.rotation.y=(Math.random()-.5)*.08}
-for(let side of [-1,1])for(let i=0;i<7;i++){const z=7-i*3.2;const p=mesh(new THREE.DodecahedronGeometry(.9,0),stone,side*(3.5+Math.random()),.45,z);p.scale.set(1.1,.8,1.2)}
-// Temple terrace and monumental ruin
-for(let level=0;level<3;level++){const w=16-level*1.4,z=-22-level*.15;box(0,.2+level*.48,z,w,.55,7,level===0?stone:stoneDark)}
-for(const side of [-1,1]){for(let z=-24;z<=-12;z+=4){box(side*6.8,1.8,z,1.35,3.6,1.35,stone);box(side*6.8,3.7,z,1.8,.35,1.8,stoneDark)}}
-box(0,4.25,-25,15,.65,2.4,stoneDark);box(0,4.65,-25,13,.2,2.1,gold);
-for(let x=-5;x<=5;x+=2.5){const col=box(x,2.7,-24.7,1.35,5.2,1.35,stone);box(x,5.35,-24.7,1.8,.35,1.8,stoneDark);const cap=mesh(new THREE.BoxGeometry(1.5,.16,1.5),gold,x,1.2,-24.7);cap.material=gold}
-const doorMat=mat(0x344b40,.72),door=box(0,2.25,-24.2,3.5,4.3,.45,doorMat);for(let y=.9;y<4;y+=1.1)box(0,y,-23.94,3.35,.12,.08,gold);
-const ring=mesh(new THREE.TorusGeometry(.75,.1,10,40),gold,0,2.4,-23.9);ring.rotation.y=0;
-// Altar
-const altar=new THREE.Group();altar.position.set(0,0,-8);scene.add(altar);mesh(new THREE.CylinderGeometry(2.1,2.45,.8,8),stone,0,.4,0,altar);mesh(new THREE.CylinderGeometry(1.7,1.9,.28,8),gold,0,.94,0,altar);const orbMat=new THREE.MeshStandardMaterial({color:0x8de5ce,emissive:0x238b78,emissiveIntensity:1.5,roughness:.2});const orb=mesh(new THREE.IcosahedronGeometry(.72,2),orbMat,0,2,0,altar);const halo=mesh(new THREE.TorusGeometry(1.25,.035,8,64),gold,0,1.9,0,altar);halo.rotation.x=Math.PI/2;
-// Character, recognizable adventurer silhouette
-const player=new THREE.Group();scene.add(player);const skin=mat(0xc58f68),shirt=mat(0x526c60),pants=mat(0x39433d),boot=mat(0x4a382b),packMat=mat(0x8b633e),hair=mat(0x302b25);
-const torso=mesh(new THREE.CapsuleGeometry(.36,.62,5,10),shirt,0,1.18,0,player);const head=mesh(new THREE.SphereGeometry(.29,16,12),skin,0,1.94,0,player);mesh(new THREE.SphereGeometry(.3,12,8,0,Math.PI*2,0,Math.PI*.55),hair,0,2.05,-.025,player);
-box(0,1.25,.38,.5,.62,.3,packMat,player);
-const arms=[],legs=[];for(const side of [-1,1]){const arm=mesh(new THREE.CapsuleGeometry(.105,.48,4,8),shirt,side*.45,1.23,0,player);arms.push(arm);const leg=mesh(new THREE.CapsuleGeometry(.14,.48,4,8),pants,side*.19,.48,0,player);legs.push(leg);mesh(new THREE.BoxGeometry(.28,.16,.42),boot,side*.19,.13,-.04,player)}
-player.position.set(0,0,13);
-// Collectible relics
-const sigils=[];[[-11,2],[11,-1],[0,-17]].forEach(([x,z],i)=>{const base=mesh(new THREE.CylinderGeometry(.9,1.1,.3,8),stone,x,.15,z);const crystal=mesh(new THREE.OctahedronGeometry(.62,1),new THREE.MeshStandardMaterial({color:0x79e0d0,emissive:0x247e73,emissiveIntensity:1.15,metalness:.25,roughness:.2}),x,1.25,z);const halo=mesh(new THREE.TorusGeometry(.88,.035,8,32),gold,x,1.25,z);halo.rotation.x=Math.PI/2;sigils.push({mesh:crystal,halo,baseY:1.25,got:false})});
-// Warm atmospheric lanterns
-for(const side of [-1,1])for(let z=5;z>-20;z-=8){const x=side*4.5;box(x,1.1,z,.22,2.2,.22,bark);box(x,2.2,z,.65,.18,.65,gold);const lamp=mesh(new THREE.SphereGeometry(.17,10,8),new THREE.MeshBasicMaterial({color:0xffd48b}),x,1.85,z);const light=new THREE.PointLight(0xffc77b,.8,7);light.position.set(x,1.9,z);scene.add(light)}
-// Controls: camera-relative movement, separate look zone on touch
-let yaw=0,pitch=.23,drag=false,lastX=0,lastY=0,keys={},stick={x:0,y:0},collected=0,nearAltar=false;
-const hint=document.querySelector('#hint'),goal=document.querySelector('#goal'),pips=[...document.querySelectorAll('.pip')],panel=document.querySelector('#panel');
-addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e')interact()},{passive:false});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-function lookStart(e){if(e.pointerType==='mouse'&&e.button!==0&&e.button!==2)return;if(e.pointerType!=='mouse'&&e.clientX<innerWidth*.52)return;drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)}
-renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());renderer.domElement.addEventListener('pointerdown',lookStart);renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('pointercancel',()=>drag=false);
-renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;yaw-=(e.clientX-lastX)*.005;pitch=THREE.MathUtils.clamp(pitch+(e.clientY-lastY)*.0025,-.12,.65);lastX=e.clientX;lastY=e.clientY});
-const stickEl=document.querySelector('#stick'),nub=document.querySelector('#nub');let stickPointer=null;
-stickEl.addEventListener('pointerdown',e=>{e.preventDefault();stickPointer=e.pointerId;stickEl.setPointerCapture(e.pointerId);moveStick(e)});stickEl.addEventListener('pointermove',e=>{if(e.pointerId===stickPointer)moveStick(e)});function resetStick(){stickPointer=null;stick.x=stick.y=0;nub.style.transform='translate(0px,0px)'}stickEl.addEventListener('pointerup',resetStick);stickEl.addEventListener('pointercancel',resetStick);
-function moveStick(e){const r=stickEl.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),l=Math.hypot(dx,dy),k=Math.min(1,45/(l||1));stick.x=dx*k/45;stick.y=dy*k/45;nub.style.transform='translate('+stick.x*42+'px,'+stick.y*42+'px)'}
-document.querySelector('#interact').onclick=interact;function interact(){if(player.position.distanceTo(altar.position)<3.5){if(collected===3){door.position.y=-1.5;orbMat.emissiveIntensity=2.8;hint.textContent='LA SOGLIA È APERTA. AVVICINATI AL SANTUARIO.';panel.style.display='block'}else hint.textContent='L’altare è ancora silenzioso. Mancano '+(3-collected)+' sigilli.'}}
-document.querySelector('#continue').onclick=()=>{panel.style.display='none';hint.textContent='Il santuario ti attende. L’avventura continua…'};
-const clock=new THREE.Clock(),up=new THREE.Vector3(0,1,0),desired=new THREE.Vector3(),camOffset=new THREE.Vector3();
-const sway=[];
-const ocean=mesh(new THREE.PlaneGeometry(220,220,48,48),new THREE.MeshStandardMaterial({color:0x398f91,roughness:.22,metalness:.12}),0,-5.45,0);ocean.rotation.x=-Math.PI/2;
-const op=ocean.geometry.attributes.position,obase=Float32Array.from(op.array);
-const moteg=new THREE.BufferGeometry(),moteN=180,moteP=new Float32Array(moteN*3),moteS=[];for(let i=0;i<moteN;i++){moteP[i*3]=(Math.random()-.5)*65;moteP[i*3+1]=Math.random()*9;moteP[i*3+2]=(Math.random()-.5)*65;moteS.push(Math.random()*6.28)}moteg.setAttribute('position',new THREE.BufferAttribute(moteP,3));const motes=new THREE.Points(moteg,new THREE.PointsMaterial({color:0xffe5aa,size:.1,transparent:true,opacity:.7,depthWrite:false,blending:THREE.AdditiveBlending}));scene.add(motes);
-const clouds=[];for(let i=0;i<10;i++){const g=new THREE.Group();g.position.set((Math.random()-.5)*130,18+Math.random()*12,-60+Math.random()*110);scene.add(g);for(let j=0;j<4;j++){const p=mesh(new THREE.SphereGeometry(1,12,8),new THREE.MeshBasicMaterial({color:0xf4eddd,transparent:true,opacity:.23,depthWrite:false}),(j-1.5)*1.8,0,0,g);p.scale.set(2.7,.55,1.4)}clouds.push(g)}
-const birds=[];for(let i=0;i<4;i++){const b=new THREE.Group();mesh(new THREE.SphereGeometry(.12,8,6),mat(0x263b34),0,0,0,b);for(const s of [-1,1]){const w=mesh(new THREE.BoxGeometry(.8,.04,.24),mat(0x263b34),s*.42,0,0,b);w.rotation.z=s*.2}b.userData.phase=i*1.5;scene.add(b);birds.push(b)}
-
-function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;
-const f=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0)-stick.y,s=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+stick.x;
-desired.set(s,0,-f);const moving=desired.lengthSq()>.012;if(moving){desired.normalize().applyAxisAngle(up,yaw);const speed=(keys.shift?7.3:5.1);player.position.addScaledVector(desired,dt*speed);player.rotation.y=THREE.MathUtils.damp(player.rotation.y,Math.atan2(desired.x,desired.z),10,dt);arms[0].rotation.x=Math.sin(t*10)*.55;arms[1].rotation.x=-Math.sin(t*10)*.55;legs[0].rotation.x=-Math.sin(t*10)*.48;legs[1].rotation.x=Math.sin(t*10)*.48}else{arms.forEach(a=>a.rotation.x=THREE.MathUtils.damp(a.rotation.x,0,8,dt));legs.forEach(a=>a.rotation.x=THREE.MathUtils.damp(a.rotation.x,0,8,dt))}
-player.position.x=THREE.MathUtils.clamp(player.position.x,-31,31);player.position.z=THREE.MathUtils.clamp(player.position.z,-33,31);
-camOffset.set(Math.sin(yaw)*10,4.2+pitch*5,Math.cos(yaw)*10);player.position.y=moving?Math.abs(Math.sin(t*10))*.07:Math.sin(t*2)*.018;torso.rotation.z=Math.sin(t*2)*.018+(moving?Math.sin(t*10)*.025:0);head.rotation.y=Math.sin(t*.8)*.045;const target=player.position.clone().add(camOffset);camera.position.lerp(target,1-Math.pow(.001,dt));camera.lookAt(player.position.x,1.2,player.position.z);
-sigils.forEach((s,i)=>{s.mesh.rotation.y=t*.65+i;s.mesh.position.y=s.baseY+Math.sin(t*1.8+i)*.13;s.halo.rotation.z=t*.3;if(!s.got&&player.position.distanceTo(s.mesh.position)<1.9){s.got=true;collected++;s.mesh.visible=false;s.halo.visible=false;pips[collected-1].classList.add('on');goal.textContent=collected===3?'Ritorna all’altare':'Sigilli recuperati: '+collected+'/3';hint.textContent='Un sigillo antico è tuo. Ne restano '+(3-collected)+'.'}});
-orb.rotation.y=t*.45;orb.position.y=2+Math.sin(t*1.5)*.12;halo.rotation.z=t*.18;
-for(let i=0;i<op.count;i++){const x=obase[i*3],z=obase[i*3+1];op.array[i*3+2]=Math.sin(x*.15+t*.7)*.12+Math.cos(z*.18+t*.5)*.08}op.needsUpdate=true;ocean.geometry.computeVertexNormals();
-for(let i=0;i<moteN;i++){moteP[i*3+1]+=.13*dt;if(moteP[i*3+1]>10)moteP[i*3+1]=.1;moteP[i*3]+=Math.sin(t*.7+moteS[i])*.1*dt}moteg.attributes.position.needsUpdate=true;
-clouds.forEach(g=>{g.position.x+=dt*.25;if(g.position.x>85)g.position.x=-85});
-birds.forEach((b,i)=>{const a=t*.12+b.userData.phase;b.position.set(Math.cos(a)*(24+i*2),14+Math.sin(t*2+i)*.7,-18+Math.sin(a)*(16+i*2));b.rotation.y=-a+1.57;b.children.slice(1).forEach((w,j)=>w.rotation.z=(j===0?1:-1)*Math.sin(t*9+i)*.45)});
-
-const near=player.position.distanceTo(altar.position)<3.7;if(near&&!nearAltar){hint.textContent=collected===3?'Premi E per risvegliare il santuario':'L’altare reagisce ai sigilli. Continua a cercare.'}nearAltar=near;
-renderer.render(scene,camera)}
-animate();addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-</script></body></html>
+import * as THREE from 'three';
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x91c7c2);scene.fog=new THREE.FogExp2(0x91c7c2,.0085);
+const camera=new THREE.PerspectiveCamera(54,innerWidth/innerHeight,.1,500);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.13;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xd8f2ee,0x52604b,2.0));
+const sun=new THREE.DirectionalLight(0xffe2b0,3.1);sun.position.set(-35,55,25);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;sun.shadow.bias=-.00025;scene.add(sun);
+const fill=new THREE.DirectionalLight(0x7ac6d0,1.0);fill.position.set(35,18,-35);scene.add(fill);
+const mat=(color,rough=.85,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
+const sand=mat(0xd6c49a),grass=mat(0x547d54),grass2=mat(0x77945b),leaf=mat(0x286b55),leaf2=mat(0x478866),bark=mat(0x76513a),stone=mat(0x9b9b83),stoneDark=mat(0x626e63),gold=mat(0xc6a45e,.38,.55);
+const waterGeo=new THREE.PlaneGeometry(500,500,1,1);const waterMat=new THREE.MeshPhysicalMaterial({color:0x3d9d9d,roughness:.23,metalness:.12,transparent:true,opacity:.94,clearcoat:.8,clearcoatRoughness:.15});const water=new THREE.Mesh(waterGeo,waterMat);water.rotation.x=-Math.PI/2;water.position.y=-1.3;scene.add(water);
+const island=new THREE.Group();scene.add(island);
+function terrainY(x,z){const r=Math.sqrt(x*x+z*z);return Math.max(-.8,2.1-r*.12+Math.sin(x*.22)*.28+Math.cos(z*.18)*.24)}
+const verts=[],inds=[],cols=[];const rings=36,segs=100;
+for(let j=0;j<=rings;j++){const t=j/rings;for(let i=0;i<=segs;i++){const a=i/segs*Math.PI*2;const edge=23+Math.sin(a*5)*1.5+Math.cos(a*8)*1.1;const r=t*edge;const x=Math.cos(a)*r,z=Math.sin(a)*r,y=terrainY(x,z);verts.push(x,y,z);const c=new THREE.Color().setHSL(.27+Math.sin(a*4+t*5)*.018,.28,.29+t*.13);cols.push(c.r,c.g,c.b);if(j<rings&&i<segs){const n=j*(segs+1)+i;inds.push(n,n+segs+1,n+1,n+1,n+segs+1,n+segs+2)}}}
+const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));tg.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));tg.setIndex(inds);tg.computeVertexNormals();const ground=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1}));ground.receiveShadow=true;island.add(ground);
+const beach=new THREE.Mesh(new THREE.CylinderGeometry(24,26,3.2,96,1,true),sand);beach.position.y=-.8;beach.castShadow=true;beach.receiveShadow=true;island.add(beach);
+function addRock(x,z,s){const m=new THREE.Mesh(new THREE.DodecahedronGeometry(s,1),Math.random()>.5?stone:stoneDark);m.position.set(x,terrainY(x,z)+s*.35,z);m.scale.set(1.1,.7,.9);m.rotation.set(Math.random(),Math.random()*3,Math.random());m.castShadow=true;m.receiveShadow=true;island.add(m)}
+for(let i=0;i<65;i++){const a=i/65*Math.PI*2,r=21+Math.sin(i*4)*1.5;addRock(Math.cos(a)*r,Math.sin(a)*r,.7+Math.random()*1.8)}
+function palm(x,z,scale=1){const y=terrainY(x,z);const g=new THREE.Group();g.position.set(x,y,z);g.scale.setScalar(scale);island.add(g);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.16,.3,5.8,9,5),bark);trunk.position.y=2.8;trunk.rotation.z=-.12;trunk.castShadow=true;g.add(trunk);for(let k=0;k<7;k++){const a=k/7*Math.PI*2;const fr=new THREE.Group();fr.position.set(0,5.45,0);fr.rotation.y=a;fr.rotation.z=-.55;const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.07,4.5,6),gold);stem.position.set(0,1.7,0);stem.rotation.z=-.22;fr.add(stem);for(let q=0;q<11;q++){const u=q/11;for(const side of [-1,1]){const f=new THREE.Mesh(new THREE.ConeGeometry(.12+u*.13,1.15,5),k%2?leaf:leaf2);f.position.set(side*(.15+u*.8),1.5-u*1.9,.28+u*1.7);f.rotation.z=side*.8;f.rotation.x=.4;fr.add(f)}}g.add(fr)}return g}
+for(const p of [[-15,-5,.95],[-17,5,1.1],[14,-7,1.05],[17,4,.9],[9,13,.85],[-10,14,.8],[3,-17,.9],[-4,8,.85]])palm(...p);
+function fern(x,z,s=1){const g=new THREE.Group();g.position.set(x,terrainY(x,z),z);g.scale.setScalar(s);island.add(g);for(let i=0;i<9;i++){const a=i/9*Math.PI*2;const stem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.04,1.6,5),leaf);stem.position.set(Math.cos(a)*.45,.65,Math.sin(a)*.45);stem.rotation.z=Math.cos(a)*.6;stem.rotation.x=Math.sin(a)*.6;g.add(stem);for(let q=0;q<5;q++){const f=new THREE.Mesh(new THREE.ConeGeometry(.12,.65,5),i%2?leaf:leaf2);const t=q/5;f.position.set(Math.cos(a)*(.2+t*.8),.3+t*.7,Math.sin(a)*(.2+t*.8));f.rotation.z=Math.cos(a)*.8;f.rotation.x=Math.sin(a)*.8;g.add(f)}}}
+for(let i=0;i<42;i++){const a=i*2.399,r=8+Math.random()*11;fern(Math.cos(a)*r,Math.sin(a)*r,.55+Math.random()*.8)}
+// Ancient path and temple approach
+const pathPoints=[[-3,13],[-2,10],[0,7],[1,4],[0,1],[0,-2],[0,-5]];
+for(let i=0;i<pathPoints.length;i++){const [x,z]=pathPoints[i];for(let side of [-1,1]){const b=new THREE.Mesh(new THREE.BoxGeometry(.8,.18,.95),i%2?stone:stoneDark);b.position.set(x+side*.72,terrainY(x,z)+.12,z);b.rotation.y=(i%3)*.12;b.castShadow=true;b.receiveShadow=true;island.add(b)}}
+function pillar(x,z,h=4){const base=new THREE.Mesh(new THREE.BoxGeometry(1.5,.4,1.5),stoneDark);base.position.set(x,terrainY(x,z)+.2,z);base.castShadow=true;island.add(base);const col=new THREE.Mesh(new THREE.CylinderGeometry(.48,.58,h,8),stone);col.position.set(x,terrainY(x,z)+.4+h/2,z);col.castShadow=true;col.receiveShadow=true;island.add(col);const cap=new THREE.Mesh(new THREE.BoxGeometry(1.5,.38,1.5),stoneDark);cap.position.set(x,terrainY(x,z)+.4+h,z);cap.castShadow=true;island.add(cap)}
+pillar(-4,-7,4.8);pillar(4,-7,4.8);pillar(-4,-14,4);pillar(4,-14,4);
+const lintel=new THREE.Mesh(new THREE.BoxGeometry(9,1.2,1.6),stoneDark);lintel.position.set(0,terrainY(0,-7)+5.7,-7);lintel.castShadow=true;island.add(lintel);
+const archMark=new THREE.Mesh(new THREE.TorusGeometry(1.15,.12,12,48),gold);archMark.position.set(0,terrainY(0,-7)+3.4,-7.9);archMark.castShadow=true;island.add(archMark);
+const altar=new THREE.Group();altar.position.set(0,terrainY(0,-14),-14);island.add(altar);const altarBase=new THREE.Mesh(new THREE.BoxGeometry(2.5,.6,2.5),stoneDark);altarBase.position.y=.3;altarBase.castShadow=true;altar.add(altarBase);const altarTop=new THREE.Mesh(new THREE.BoxGeometry(1.9,.35,1.9),stone);altarTop.position.y=.78;altarTop.castShadow=true;altar.add(altarTop);
+const sigil=new THREE.Mesh(new THREE.OctahedronGeometry(.48,1),gold);sigil.position.y=1.55;sigil.castShadow=true;altar.add(sigil);const glow=new THREE.PointLight(0xe6c47c,2.5,9);glow.position.y=1.6;altar.add(glow);
+const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05,.035,8,64),new THREE.MeshBasicMaterial({color:0xe5c37c}));ring.rotation.x=Math.PI/2;ring.position.y=1.05;altar.add(ring);
+// Glowing waymarkers
+const markers=[];for(let i=0;i<5;i++){const p=pathPoints[i+1];const m=new THREE.Group();m.position.set(p[0]+(i%2?.35:-.3),terrainY(p[0],p[1])+.18,p[1]);const orb=new THREE.Mesh(new THREE.SphereGeometry(.13,16,12),new THREE.MeshBasicMaterial({color:0xf1d28e}));const halo=new THREE.Mesh(new THREE.TorusGeometry(.34,.018,8,32),new THREE.MeshBasicMaterial({color:0xf1d28e,transparent:true,opacity:.7}));halo.rotation.x=Math.PI/2;m.add(orb,halo);const l=new THREE.PointLight(0xe6c47c,.65,3);m.add(l);island.add(m);markers.push(m)}
+// Character rig: detailed stylized explorer with articulated limbs
+const hero=new THREE.Group();scene.add(hero);hero.position.set(0,terrainY(0,17),17);
+const skin=mat(0xb97855),shirt=mat(0xc4b28c),pants=mat(0x34494a),boots=mat(0x45372e),pack=mat(0x72543b),hair=mat(0x302d27);
+function sphere(parent,r,material,pos,scale=[1,1,1]){const o=new THREE.Mesh(new THREE.SphereGeometry(r,20,16),material);o.position.set(...pos);o.scale.set(...scale);o.castShadow=true;parent.add(o);return o}
+function limb(parent,a,b,r1,r2,material){const d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a));const m=new THREE.Mesh(new THREE.CylinderGeometry(r2,r1,d.length(),10),material);m.position.copy(new THREE.Vector3(...a).add(new THREE.Vector3(...b)).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());m.castShadow=true;parent.add(m);return m}
+const body=new THREE.Group();hero.add(body);
+const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.72,6,12),shirt);torso.position.y=1.48;torso.castShadow=true;body.add(torso);
+const hips=new THREE.Mesh(new THREE.BoxGeometry(.62,.28,.38),pants);hips.position.y=.98;hips.castShadow=true;body.add(hips);
+const head=sphere(body,.27,skin,[0,2.18,0],[.82,1.12,.85]);sphere(body,.29,hair,[0,2.38,-.045],[.9,.62,.9]);
+const nose=sphere(body,.055,skin,[0,2.15,.24],[.7,1,.7]);
+const packMesh=new THREE.Mesh(new THREE.BoxGeometry(.48,.62,.25),pack);packMesh.position.set(0,1.52,-.34);packMesh.castShadow=true;body.add(packMesh);
+const strap=limb(body,[-.28,1.9,.02],[-.36,1.16,.02],.045,.045,pack);
+const arms=[],legs=[];
+for(const side of [-1,1]){const arm=new THREE.Group();arm.position.set(side*.43,1.82,0);body.add(arm);limb(arm,[0,0,0],[side*.08,-.45,.02],.14,.12,shirt);limb(arm,[side*.08,-.45,.02],[side*.12,-.84,.09],.11,.085,skin);sphere(arm,.105,skin,[side*.12,-.9,.1]);arms.push(arm);
+const leg=new THREE.Group();leg.position.set(side*.2,.92,0);body.add(leg);limb(leg,[0,0,0],[0,-.48,.02],.17,.14,pants);limb(leg,[0,-.48,.02],[0,-.83,.09],.13,.1,pants);const boot=new THREE.Mesh(new THREE.BoxGeometry(.28,.17,.42),boots);boot.position.set(0,-.87,.17);boot.castShadow=true;leg.add(boot);legs.push(leg)}
+const shadow=new THREE.Mesh(new THREE.CircleGeometry(.7,32),new THREE.MeshBasicMaterial({color:0x183a32,transparent:true,opacity:.24,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.03;hero.add(shadow);
+let yaw=0,camYaw=0,camPitch=.25,walking=0,started=false,found=0,nearAltar=false;const keys={};let drag=false,lastX=0,lastY=0;
+function terrainAt(x,z){return terrainY(x,z)}
+function updateTask(){document.getElementById('task').textContent=found<5?'Segui le pietre luminose':'Raggiungi l’altare antico';document.querySelector('#bar').style.width=(found/5*100)+'%'}
+function toast(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+function interact(){if(!started)return;if(nearAltar&&found>=5){toast('Il simbolo si accende. L’isola… ti riconosce.');sigil.material= new THREE.MeshStandardMaterial({color:0xffe2a1,emissive:0x9c6420,emissiveIntensity:1.4,metalness:.55,roughness:.25});glow.intensity=5;document.getElementById('task').textContent='Un ricordo riaffiora…';document.getElementById('hint').textContent='CAPITOLO I COMPLETATO — qualcosa si è risvegliato';}else if(nearAltar){toast('L’altare è incompleto. Segui ancora le luci.')}else{toast('Le rovine sembrano indicare il sentiero.')}} 
+document.getElementById('interact').addEventListener('click',interact);
+document.getElementById('start').addEventListener('click',()=>{started=true;document.getElementById('intro').classList.add('hidden');toast('Il vento porta una voce…')});
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='e')interact()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+renderer.domElement.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('pointermove',e=>{if(!drag||!started)return;camYaw-=(e.clientX-lastX)*.004;camPitch=THREE.MathUtils.clamp(camPitch+(e.clientY-lastY)*.002,-.05,.65);lastX=e.clientX;lastY=e.clientY});
+document.querySelectorAll('.ctrl').forEach(b=>{const k=b.dataset.key;const on=e=>{e.preventDefault();keys[k]=true},off=e=>{e.preventDefault();keys[k]=false};b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+const clock=new THREE.Clock();let elapsed=0;
+function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);elapsed+=dt;
+water.position.y=-1.3+Math.sin(elapsed*.7)*.045;waterMat.color.setHSL(.49,.43,.38+Math.sin(elapsed*.3)*.018);
+markers.forEach((m,i)=>{m.position.y=terrainAt(m.position.x,m.position.z)+.2+Math.sin(elapsed*2+i)*.08;m.rotation.y=elapsed*.45});
+sigil.rotation.y=elapsed*.65;sigil.position.y=1.55+Math.sin(elapsed*1.8)*.12;ring.rotation.z=elapsed*.35;
+if(started){let forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),side=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const moving=Math.hypot(forward,side)>0;
+if(moving){const dir=new THREE.Vector3(side,0,-forward).normalize().applyAxisAngle(new THREE.Vector3(0,1,0),camYaw);const speed=keys.shift?7.1:4.2;hero.position.x+=dir.x*speed*dt;hero.position.z+=dir.z*speed*dt;hero.position.x=THREE.MathUtils.clamp(hero.position.x,-19,19);hero.position.z=THREE.MathUtils.clamp(hero.position.z,-19,21);hero.position.y=terrainAt(hero.position.x,hero.position.z);yaw=Math.atan2(dir.x,dir.z);hero.rotation.y=THREE.MathUtils.lerp(hero.rotation.y,yaw,.18);walking+=dt*(keys.shift?12:8)}else walking+=dt*2;
+const amp=moving?1:0;legs.forEach((l,i)=>{l.rotation.x=Math.sin(walking+(i*Math.PI))*amp*.65});arms.forEach((a,i)=>{a.rotation.x=-Math.sin(walking+(i*Math.PI))*amp*.5});body.position.y=moving?Math.abs(Math.sin(walking*2))*.045:Math.sin(elapsed*1.5)*.012;
+const target=new THREE.Vector3(hero.position.x,hero.position.y+1.3,hero.position.z);const distance=7.8;const desired=new THREE.Vector3(Math.sin(camYaw)*Math.cos(camPitch)*distance,2.5+Math.sin(camPitch)*distance,Math.cos(camYaw)*Math.cos(camPitch)*distance);camera.position.lerp(target.clone().add(desired),1-Math.pow(.001,dt));camera.lookAt(target);
+markers.forEach((m,i)=>{if(i>=found)return;});if(found<5){const m=markers[found];if(m&&hero.position.distanceTo(new THREE.Vector3(m.position.x,hero.position.y,m.position.z))<1.55){found++;m.visible=false;updateTask();toast(['Una traccia…','La pietra è calda.','Un simbolo familiare.','Il sentiero si apre.','L’altare ti attende.'][found-1]);}}
+nearAltar=hero.position.distanceTo(new THREE.Vector3(altar.position.x,hero.position.y,altar.position.z))<3.2;document.getElementById('interact').style.opacity=nearAltar?'1':'.55';
+}else{camera.position.set(0,8,28);camera.lookAt(0,1,-3)}
+sun.position.x=-35+Math.sin(elapsed*.05)*4;renderer.render(scene,camera)}
+updateTask();animate();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.8))});
+</script>
+</body></html>
