@@ -66,12 +66,12 @@ function terrainY(x,z){const r=Math.sqrt(x*x+z*z);return Math.max(-.8,2.1-r*.12+
 const verts=[],inds=[],cols=[];const rings=48,segs=128;
 for(let j=0;j<=rings;j++){const t=j/rings;for(let i=0;i<=segs;i++){const a=i/segs*Math.PI*2;const edge=23+Math.sin(a*5)*1.5+Math.cos(a*8)*1.1;const r=t*edge;const x=Math.cos(a)*r,z=Math.sin(a)*r,y=terrainY(x,z);verts.push(x,y,z);const c=new THREE.Color().setHSL(.27+Math.sin(a*4+t*5)*.018,.28,.29+t*.13);cols.push(c.r,c.g,c.b);if(j<rings&&i<segs){const n=j*(segs+1)+i;inds.push(n,n+1,n+segs+1,n+1,n+segs+2,n+segs+1)}}}
 const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));tg.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));tg.setIndex(inds);tg.computeVertexNormals();const groundCanvas=document.createElement('canvas');groundCanvas.width=groundCanvas.height=1024;
-const gctx=groundCanvas.getContext('2d');gctx.fillStyle='#77765a';gctx.fillRect(0,0,1024,1024);
+const gctx=groundCanvas.getContext('2d');gctx.fillStyle='#999477';gctx.fillRect(0,0,1024,1024);
 let seed=92831;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
 for(let i=0;i<42000;i++){const x=rand()*1024,y=rand()*1024,r=.5+rand()*5;gctx.fillStyle=['rgba(35,55,35,.18)','rgba(176,151,103,.18)','rgba(24,43,31,.15)','rgba(205,190,143,.12)'][Math.floor(rand()*4)];gctx.beginPath();gctx.ellipse(x,y,r,r*(.35+rand()*.8),rand()*3.14,0,Math.PI*2);gctx.fill()}
 for(let i=0;i<2600;i++){const x=rand()*1024,y=rand()*1024;gctx.strokeStyle='rgba(29,47,29,.18)';gctx.lineWidth=.7+rand()*1.5;gctx.beginPath();gctx.moveTo(x,y);gctx.lineTo(x+(rand()-.5)*14,y+(rand()-.5)*8);gctx.stroke()}
 const groundTexture=new THREE.CanvasTexture(groundCanvas);groundTexture.colorSpace=THREE.SRGBColorSpace;groundTexture.wrapS=groundTexture.wrapT=THREE.RepeatWrapping;groundTexture.repeat.set(2.4,2.4);groundTexture.anisotropy=8;
-const ground=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({map:groundTexture,vertexColors:true,roughness:1}));ground.receiveShadow=true;island.add(ground);
+const ground=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({map:groundTexture,roughness:1}));ground.receiveShadow=true;island.add(ground);
 const beach=new THREE.Mesh(new THREE.CylinderGeometry(24,26,3.2,96,1,true),sand);beach.position.y=-.8;beach.castShadow=true;beach.receiveShadow=true;island.add(beach);
 function addRock(x,z,s){const m=new THREE.Mesh(new THREE.DodecahedronGeometry(s,1),Math.random()>.5?stone:stoneDark);m.position.set(x,terrainY(x,z)+s*.35,z);m.scale.set(1.35,.42,1.05);m.rotation.set(Math.random(),Math.random()*3,Math.random());m.castShadow=true;m.receiveShadow=true;island.add(m)}
 for(let i=0;i<30;i++){const a=i/30*Math.PI*2,r=20+Math.sin(i*4)*1.5;addRock(Math.cos(a)*r,Math.sin(a)*r,.8+Math.random()*1.2)}
@@ -140,18 +140,9 @@ const arms=[],legs=[];
 for(const side of [-1,1]){const arm=new THREE.Group();arm.position.set(side*.43,1.82,0);body.add(arm);limb(arm,[0,0,0],[side*.08,-.45,.02],.14,.12,shirt);limb(arm,[side*.08,-.45,.02],[side*.12,-.84,.09],.11,.085,skin);sphere(arm,.105,skin,[side*.12,-.9,.1]);arms.push(arm);
 const leg=new THREE.Group();leg.position.set(side*.2,.92,0);body.add(leg);limb(leg,[0,0,0],[0,-.48,.02],.17,.14,pants);limb(leg,[0,-.48,.02],[0,-.83,.09],.13,.1,pants);const boot=new THREE.Mesh(new THREE.BoxGeometry(.28,.17,.42),boots);boot.position.set(0,-.87,.17);boot.castShadow=true;leg.add(boot);legs.push(leg)}
 const shadow=new THREE.Mesh(new THREE.CircleGeometry(.58,32),new THREE.MeshBasicMaterial({color:0x101b16,transparent:true,opacity:.32,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.025;hero.add(shadow);
+// Keep the proportionate in-game explorer until a properly art-directed rigged model is validated.
+body.visible=true;
 let heroMixer=null,heroIdle=null,heroWalk=null,heroRun=null,heroModelReady=false;
-gltfLoader.load('https://gobkit.com/freebies/human022/FieldRadioOperator.glb',gltf=>{
-  const model=gltf.scene;model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.72,o.material.roughness??.8);}}});
-  const box=new THREE.Box3().setFromObject(model);const size=box.getSize(new THREE.Vector3());const s=2.05/Math.max(size.y,.01);model.scale.setScalar(s);model.position.y=-box.min.y*s;model.rotation.y=Math.PI;
-  hero.add(model);body.visible=false;heroModelReady=true;
-  heroMixer=new THREE.AnimationMixer(model);
-  const clip=n=>gltf.animations.find(a=>a.name.toLowerCase()===n.toLowerCase());
-  const idle=clip('Idle'),walk=clip('Walk'),run=clip('Run');
-  if(idle){heroIdle=heroMixer.clipAction(idle);heroIdle.play();}
-  if(walk)heroWalk=heroMixer.clipAction(walk);
-  if(run)heroRun=heroMixer.clipAction(run);
-},undefined,e=>console.warn('Explorer model unavailable; using fallback',e));
 let yaw=0,camYaw=0,camPitch=.25,walking=0,started=false,found=0,nearAltar=false;const keys={};let drag=false,lastX=0,lastY=0;
 function terrainAt(x,z){return terrainY(x,z)}
 function updateTask(){document.getElementById('task').textContent=found<5?['Raggiungi la prima traccia','Trova la seconda traccia','Segui la terza traccia','Raggiungi la quarta traccia','Recupera l’ultima traccia'][found]:'Raggiungi l’altare antico';document.getElementById('distance').textContent=found<5?('TRACCIA '+(found+1)+' / 5 · '+Math.round(hero.position.distanceTo(markers[found].position))+' m'):'ULTIMA TAPPA · ALTARE';document.querySelector('#bar').style.width=(found/5*100)+'%'}
