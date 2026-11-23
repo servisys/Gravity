@@ -66,7 +66,9 @@ const mat=(color,rough=.85,metal=0)=>new THREE.MeshStandardMaterial({color,rough
 const sand=mat(0xd6c49a),grass=mat(0x547d54),grass2=mat(0x77945b),leaf=mat(0x286b55),leaf2=mat(0x478866),bark=mat(0x76513a),stone=mat(0x9b9b83),stoneDark=mat(0x626e63),gold=mat(0xc6a45e,.38,.55);
 const waterGeo=new THREE.PlaneGeometry(500,500,64,64);
 const waterMat=new THREE.MeshPhysicalMaterial({color:0x347f78,roughness:.28,metalness:.08,transparent:true,opacity:.96,clearcoat:.9,clearcoatRoughness:.12});
-waterMat.onBeforeCompile=shader=>{shader.uniforms.uHorizonTime={value:0};shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform float uHorizonTime;');shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.z += sin(position.x*.075+uHorizonTime*.72)*.035 + cos(position.y*.061-uHorizonTime*.48)*.028;');waterMat.userData.shader=shader;};
+waterMat.onBeforeCompile=shader=>{shader.uniforms.uHorizonTime={value:0};shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>
+uniform float uHorizonTime;');shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>
+transformed.z += sin(position.x*.075+uHorizonTime*.72)*.035 + cos(position.y*.061-uHorizonTime*.48)*.028;');waterMat.userData.shader=shader;};
 const water=new THREE.Mesh(waterGeo,waterMat);water.rotation.x=-Math.PI/2;water.position.y=-1.3;scene.add(water);
 const island=new THREE.Group();scene.add(island);const proceduralVegetation=new THREE.Group();island.add(proceduralVegetation);
 function terrainY(x,z){const r=Math.sqrt(x*x+z*z);return Math.max(-.8,2.1-r*.12+Math.sin(x*.22)*.28+Math.cos(z*.18)*.24)}
