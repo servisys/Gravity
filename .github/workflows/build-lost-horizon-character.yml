@@ -52,9 +52,9 @@ jobs:
           npx --yes @gltf-transform/cli@4.5.1 optimize "$MODEL" out/optimized.glb \
             --no-flatten --no-join --no-simplify \
             --compress meshopt --meshopt-level medium \
-            --texture-compress webp --texture-size 1024
-          echo "Optimized mobile model:"
-          ls -lh out/optimized.glb
+            --texture-compress webp --texture-size 1024 2>&1 | tee -a ara3d-build.log
+          echo "Optimized mobile model:" | tee -a ara3d-build.log
+          ls -lh out/optimized.glb | tee -a ara3d-build.log
           mkdir -p assets
           cp out/optimized.glb assets/the-lost-horizon-explorer.glb
 
@@ -74,9 +74,11 @@ jobs:
           s = p.read_text()
           old = "https://tevy.dev/models/hiker/v1/lod0.glb"
           new = "../assets/the-lost-horizon-explorer.glb"
-          if old not in s:
-              raise SystemExit("Expected Hiker model URL not found in main source")
-          p.write_text(s.replace(old, new))
+          if old in s:
+              s = s.replace(old, new)
+          elif new not in s:
+              raise SystemExit("Explorer model URL not found in main source")
+          p.write_text(s)
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -101,9 +103,11 @@ jobs:
           s = p.read_text()
           old = "https://tevy.dev/models/hiker/v1/lod0.glb"
           new = "./assets/the-lost-horizon-explorer.glb"
-          if old not in s:
-              raise SystemExit("Expected Hiker model URL not found in Pages index")
-          p.write_text(s.replace(old, new))
+          if old in s:
+              s = s.replace(old, new)
+          elif new not in s:
+              raise SystemExit("Explorer model URL not found in Pages index")
+          p.write_text(s)
           PY
           cd pages
           git config user.name "github-actions[bot]"
