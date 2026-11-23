@@ -152,7 +152,7 @@ gltfLoader.load('https://tevy.dev/models/hiker/v1/lod0.glb',gltf=>{
   model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.72,o.material.roughness??.8);}}});
   const rawBounds=new THREE.Box3().setFromObject(model);
   const rawSize=rawBounds.getSize(new THREE.Vector3());
-  model.scale.setScalar(1.78/Math.max(rawSize.y,.01));
+  model.scale.setScalar(1.62/Math.max(rawSize.y,.01));
   const fittedBounds=new THREE.Box3().setFromObject(model);
   model.position.y-=fittedBounds.min.y;
   hero.add(model);
@@ -202,7 +202,7 @@ if(heroMixer){
   if(heroWalk)heroWalk.timeScale=keys.shift?1.55:1.28;
   heroMixer.update(dt);
 }
-const target=new THREE.Vector3(hero.position.x,hero.position.y+1.2,hero.position.z);const distance=9.4;const desired=new THREE.Vector3(Math.sin(camYaw)*Math.cos(camPitch)*distance,2.8+Math.sin(camPitch)*distance,Math.cos(camYaw)*Math.cos(camPitch)*distance);camera.position.lerp(target.clone().add(desired),1-Math.pow(.001,dt));camera.lookAt(target);
+const target=new THREE.Vector3(hero.position.x,hero.position.y+1.0,hero.position.z);const distance=13.2;const desired=new THREE.Vector3(Math.sin(camYaw)*Math.cos(camPitch)*distance,2.8+Math.sin(camPitch)*distance,Math.cos(camYaw)*Math.cos(camPitch)*distance);camera.position.lerp(target.clone().add(desired),1-Math.pow(.001,dt));camera.lookAt(target);
 markers.forEach((m,i)=>{if(i>=found)return;});if(found<5){const m=markers[found];const md=hero.position.distanceTo(new THREE.Vector3(m.position.x,hero.position.y,m.position.z));document.getElementById('distance').textContent='TRACCIA '+(found+1)+' / 5 · '+Math.round(md)+' m';if(m&&md<1.8){found++;m.visible=false;updateTask();toast(['Prima traccia recuperata','Seconda traccia recuperata','Terza traccia recuperata','Quarta traccia recuperata','Tutte le tracce raccolte · trova l’altare'][found-1]);}}else{document.getElementById('distance').textContent='ALTARE · '+Math.round(hero.position.distanceTo(new THREE.Vector3(altar.position.x,hero.position.y,altar.position.z)))+' m';}
 nearAltar=hero.position.distanceTo(new THREE.Vector3(altar.position.x,hero.position.y,altar.position.z))<3.2;document.getElementById('interact').style.opacity=nearAltar&&found>=5?'1':'.45';document.getElementById('interact').textContent=nearAltar?'ATTIVA':'ESAMINA';
 }else{camera.position.set(0,8,28);camera.lookAt(0,1,-3)}
