@@ -30,21 +30,33 @@ jobs:
       - name: Cache Ara character data
         uses: actions/cache@v4
         with:
-          path: ~/.cache/ara3d
-          key: ara3d-data-0.9.0
+          path: .ara3d-cache
+          key: ara3d-data-0.14.0
 
       - name: Generate rigged and animated GLB
+        env:
+          ARA3D_CACHE: ${{ github.workspace }}/.ara3d-cache
         run: |
-          npx --yes ara3d@0.9.0 export \
+          set -o pipefail
+          npx --yes ara3d@0.14.0 export \
             --params characters/lost-horizon-explorer.json \
             --formats glb \
             --detail medium \
             --animations idle,walk,run,look_around \
-            --out out
+            --debug \
+            --out out 2>&1 | tee ara3d-build.log
           MODEL="$(find out -maxdepth 1 -type f -name '*.glb' -print -quit)"
           test -n "$MODEL"
           mkdir -p assets
           cp "$MODEL" assets/the-lost-horizon-explorer.glb
+
+      - name: Save generator diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ara3d-build-diagnostics
+          path: ara3d-build.log
+          if-no-files-found: ignore
 
       - name: Update source project
         run: |
