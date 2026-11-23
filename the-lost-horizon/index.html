@@ -65,7 +65,7 @@ for(const side of [-1,1])for(let z=5;z>-20;z-=8){const x=side*4.5;box(x,1.1,z,.2
 let yaw=0,pitch=.23,drag=false,lastX=0,lastY=0,keys={},stick={x:0,y:0},collected=0,nearAltar=false;
 const hint=document.querySelector('#hint'),goal=document.querySelector('#goal'),pips=[...document.querySelectorAll('.pip')],panel=document.querySelector('#panel');
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e')interact()},{passive:false});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-function lookStart(e){if(e.pointerType==='mouse'&&e.button!==2&&e.button!==1)return;if(e.pointerType!=='mouse'&&e.clientX<innerWidth*.52)return;drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)}
+function lookStart(e){if(e.pointerType==='mouse'&&e.button!==0&&e.button!==2)return;if(e.pointerType!=='mouse'&&e.clientX<innerWidth*.52)return;drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)}
 renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());renderer.domElement.addEventListener('pointerdown',lookStart);renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('pointercancel',()=>drag=false);
 renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;yaw-=(e.clientX-lastX)*.005;pitch=THREE.MathUtils.clamp(pitch+(e.clientY-lastY)*.0025,-.12,.65);lastX=e.clientX;lastY=e.clientY});
 const stickEl=document.querySelector('#stick'),nub=document.querySelector('#nub');let stickPointer=null;
