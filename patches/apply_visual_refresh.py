@@ -40,7 +40,7 @@ replace("SceneManager.ts", [
     ("color: 0x18283a, metalness: .8, roughness: .24", "color: 0x547887, metalness: .32, roughness: .42"),
     ("color: 0x13243a, metalness: .45, roughness: .2, transparent: true, opacity: .13", "color: 0x6b9baa, metalness: .18, roughness: .38, transparent: true, opacity: .07"),
     ("color: 0x39cfff", "color: 0x69dff0"),
-    ("color: 0x18334b, 0x102236", "color: 0x427487, 0x294e60"),
+    ("0x18334b, 0x102236", "0x427487, 0x294e60"),
 ])
 
 replace("BallManager.ts", [
