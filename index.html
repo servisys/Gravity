@@ -15,7 +15,7 @@
 #subtitle{font-size:11px;letter-spacing:.17em;color:#e2e9df;margin-top:6px}
 #objective{position:fixed;z-index:4;top:26px;right:28px;width:min(270px,40vw);padding:14px 17px;border:1px solid rgba(246,229,192,.35);background:rgba(13,42,43,.42);backdrop-filter:blur(12px);color:#f5efdf;pointer-events:none}
 #objective small{display:block;color:#e6c88f;font-size:9px;letter-spacing:.22em;margin-bottom:7px}
-#objective strong{font:16px Georgia,serif;font-weight:400}
+#objective strong{display:block;font:16px Georgia,serif;font-weight:400}#distance{margin-top:8px;color:#d9dfd0;font-size:10px;letter-spacing:.12em}#distance b{color:#f0d49c;font-weight:700}
 #progress{height:2px;background:rgba(255,255,255,.18);margin-top:12px}#progress i{display:block;height:100%;width:0;background:#e6c88f;transition:width .4s}
 #hint{position:fixed;z-index:4;bottom:28px;left:50%;transform:translateX(-50%);padding:10px 16px;border:1px solid rgba(255,255,255,.35);background:rgba(12,39,42,.42);backdrop-filter:blur(12px);color:#fff;font-size:11px;letter-spacing:.08em;white-space:nowrap;pointer-events:none;text-align:center}
 #cross{position:fixed;z-index:3;left:50%;top:50%;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.8);box-shadow:0 0 12px white;pointer-events:none}
@@ -27,7 +27,7 @@
 #intro p{max-width:390px;color:#e4e5d9;font:15px/1.65 Georgia,serif}
 #start{margin-top:22px;padding:14px 25px;border:1px solid #e7c98d;background:#e7c98d;color:#173438;font-size:10px;font-weight:800;letter-spacing:.22em;cursor:pointer}
 #start:hover{background:#f5dfb1}
-#mobile{position:fixed;z-index:7;left:22px;bottom:max(22px,env(safe-area-inset-bottom));display:none;align-items:center;pointer-events:auto}
+#lookzone{display:none;position:fixed;z-index:6;right:0;top:18%;bottom:118px;width:58%;touch-action:none;pointer-events:auto;background:transparent}#mobile{position:fixed;z-index:7;left:22px;bottom:max(22px,env(safe-area-inset-bottom));display:none;align-items:center;pointer-events:auto}
 #stick{width:142px;height:142px;display:grid;place-items:center;touch-action:none;user-select:none;-webkit-user-select:none}
 #stick-ring{width:124px;height:124px;border:1px solid rgba(255,255,255,.55);border-radius:50%;background:radial-gradient(circle,rgba(238,225,190,.12),rgba(10,42,43,.42));box-shadow:inset 0 0 25px #09292a55,0 5px 22px #09292a44;backdrop-filter:blur(5px);display:grid;place-items:center}
 #stick-knob{width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.8);background:linear-gradient(145deg,#f0dfb8dd,#b99a65bb);box-shadow:0 3px 14px #09292a66;transform:translate(0,0);will-change:transform;pointer-events:none}
@@ -35,17 +35,17 @@
 #interact{position:fixed;z-index:5;right:22px;bottom:30px;width:58px;height:58px;border-radius:50%;border:1px solid #f2d9a0;background:#183e40aa;color:#f4dfb2;display:none;font-size:10px;letter-spacing:.08em}
 #toast{position:fixed;z-index:6;left:50%;top:22%;transform:translate(-50%,-10px);opacity:0;transition:.4s;color:#fff;font:20px Georgia,serif;text-align:center;text-shadow:0 2px 15px #102e31;pointer-events:none}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-@media(max-width:760px),(pointer:coarse){#top{left:16px;top:15px}#subtitle{font-size:9px}#objective{top:15px;right:14px;width:155px;padding:10px}#objective strong{font-size:13px}#hint{bottom:16px;left:50%;font-size:9px;max-width:48vw;white-space:normal}#mobile{display:flex}#interact{display:block;right:22px;bottom:max(38px,env(safe-area-inset-bottom));width:64px;height:64px}#cross{display:none}}
+@media(max-width:760px),(pointer:coarse){#lookzone{display:block}#top{left:16px;top:15px}#subtitle{font-size:9px}#objective{top:15px;right:12px;width:174px;padding:10px 11px}#objective strong{font-size:13px}#distance{font-size:9px;margin-top:6px}#hint{bottom:16px;left:50%;font-size:9px;max-width:48vw;white-space:normal}#mobile{display:flex}#interact{display:block;right:22px;bottom:max(38px,env(safe-area-inset-bottom));width:64px;height:64px}#cross{display:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head>
 <body>
 <div id="veil"></div>
 <div id="top"><div id="eyebrow">AN INTERACTIVE MYSTERY</div><div id="title">THE LOST HORIZON</div><div id="subtitle">CHAPTER I — THE ISLAND THAT REMEMBERS</div></div>
-<div id="objective"><small>YOUR JOURNEY</small><strong id="task">Segui le pietre luminose</strong><div id="progress"><i id="bar"></i></div></div>
+<div id="objective"><small>MISSIONE PRINCIPALE</small><strong id="task">Raggiungi la prima traccia</strong><div id="distance">TRACCIA 1 / 5 · -- m</div><div id="progress"><i id="bar"></i></div></div>
 <div id="cross"></div><div id="hint">Muovi il joystick · trascina lo schermo per ruotare la visuale</div><div id="toast"></div>
-<div id="mobile"><div id="stick" aria-label="Joystick virtuale"><div id="stick-ring"><div id="stick-knob"></div></div></div></div><button id="interact">ESAMINA</button>
-<div id="intro"><div class="panel"><div class="kicker">A MYSTERY ADVENTURE</div><h1>THE LOST<br>HORIZON</h1><p>Un'isola dimenticata. Un richiamo che attraversa il tempo. Qualcosa, tra le rovine, ti sta aspettando.</p><button id="start">ENTRA NELL'ISOLA &nbsp; →</button></div></div>
+<div id="lookzone" aria-label="Trascina per ruotare la visuale"></div><div id="mobile"><div id="stick" aria-label="Joystick virtuale"><div id="stick-ring"><div id="stick-knob"></div></div></div></div><button id="interact">ESAMINA</button>
+<div id="intro"><div class="panel"><div class="kicker">A MYSTERY ADVENTURE</div><h1>THE LOST<br>HORIZON</h1><p>Un'isola dimenticata. Cinque tracce da ritrovare. Un antico altare nasconde la verità.</p><p style="font-size:12px;opacity:.82">TELEFONO · joystick a sinistra per camminare, trascina a destra per guardarti intorno.</p><button id="start">ENTRA NELL'ISOLA &nbsp; →</button></div></div>
 <script type="module">
 import * as THREE from 'three';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x91c7c2);scene.fog=new THREE.FogExp2(0x91c7c2,.0085);
@@ -99,13 +99,13 @@ const leg=new THREE.Group();leg.position.set(side*.2,.92,0);body.add(leg);limb(l
 const shadow=new THREE.Mesh(new THREE.CircleGeometry(.7,32),new THREE.MeshBasicMaterial({color:0x183a32,transparent:true,opacity:.24,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.03;hero.add(shadow);
 let yaw=0,camYaw=0,camPitch=.25,walking=0,started=false,found=0,nearAltar=false;const keys={};let drag=false,lastX=0,lastY=0;
 function terrainAt(x,z){return terrainY(x,z)}
-function updateTask(){document.getElementById('task').textContent=found<5?'Segui le pietre luminose':'Raggiungi l’altare antico';document.querySelector('#bar').style.width=(found/5*100)+'%'}
+function updateTask(){document.getElementById('task').textContent=found<5?['Raggiungi la prima traccia','Trova la seconda traccia','Segui la terza traccia','Raggiungi la quarta traccia','Recupera l’ultima traccia'][found]:'Raggiungi l’altare antico';document.getElementById('distance').textContent=found<5?('TRACCIA '+(found+1)+' / 5 · '+Math.round(hero.position.distanceTo(markers[found].position))+' m'):'ULTIMA TAPPA · ALTARE';document.querySelector('#bar').style.width=(found/5*100)+'%'}
 function toast(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 function interact(){if(!started)return;if(nearAltar&&found>=5){toast('Il simbolo si accende. L’isola… ti riconosce.');sigil.material= new THREE.MeshStandardMaterial({color:0xffe2a1,emissive:0x9c6420,emissiveIntensity:1.4,metalness:.55,roughness:.25});glow.intensity=5;document.getElementById('task').textContent='Un ricordo riaffiora…';document.getElementById('hint').textContent='CAPITOLO I COMPLETATO — qualcosa si è risvegliato';}else if(nearAltar){toast('L’altare è incompleto. Segui ancora le luci.')}else{toast('Le rovine sembrano indicare il sentiero.')}} 
 document.getElementById('interact').addEventListener('click',interact);
 document.getElementById('start').addEventListener('click',()=>{started=true;document.getElementById('intro').classList.add('hidden');toast('Il vento porta una voce…')});
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='e')interact()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-renderer.domElement.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('pointermove',e=>{if(!drag||!started)return;camYaw-=(e.clientX-lastX)*.004;camPitch=THREE.MathUtils.clamp(camPitch+(e.clientY-lastY)*.002,-.05,.65);lastX=e.clientX;lastY=e.clientY});
+function beginLook(e){if(!started)return;drag=true;lastX=e.clientX;lastY=e.clientY;if(e.currentTarget.setPointerCapture)e.currentTarget.setPointerCapture(e.pointerId)}function moveLook(e){if(!drag||!started)return;camYaw-=(e.clientX-lastX)*.0042;camPitch=THREE.MathUtils.clamp(camPitch+(e.clientY-lastY)*.0022,-.12,.72);lastX=e.clientX;lastY=e.clientY}function endLook(){drag=false}const lookzone=document.getElementById('lookzone');lookzone.addEventListener('pointerdown',e=>{e.preventDefault();beginLook(e)});lookzone.addEventListener('pointermove',e=>{e.preventDefault();moveLook(e)});lookzone.addEventListener('pointerup',endLook);lookzone.addEventListener('pointercancel',endLook);renderer.domElement.addEventListener('pointerdown',e=>{if(matchMedia('(pointer:coarse)').matches)return;beginLook(e)});renderer.domElement.addEventListener('pointermove',moveLook);renderer.domElement.addEventListener('pointerup',endLook);renderer.domElement.addEventListener('pointercancel',endLook);
 const stick=document.getElementById('stick'),knob=document.getElementById('stick-knob');let stickPointer=null;
 function resetStick(){knob.style.transform='translate(0px,0px)';keys.w=keys.a=keys.s=keys.d=false;stickPointer=null}
 function moveStick(e){const r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=43,len=Math.hypot(dx,dy);if(len>max){dx=dx/len*max;dy=dy/len*max}knob.style.transform='translate('+dx+'px,'+dy+'px)';const nx=dx/max,ny=dy/max;keys.d=nx>.22;keys.a=nx<-.22;keys.s=ny>.22;keys.w=ny<-.22}
@@ -122,12 +122,12 @@ sigil.rotation.y=elapsed*.65;sigil.position.y=1.55+Math.sin(elapsed*1.8)*.12;rin
 if(started){let forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),side=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const moving=Math.hypot(forward,side)>0;
 if(moving){const dir=new THREE.Vector3(side,0,-forward).normalize().applyAxisAngle(new THREE.Vector3(0,1,0),camYaw);const speed=keys.shift?7.1:4.2;hero.position.x+=dir.x*speed*dt;hero.position.z+=dir.z*speed*dt;hero.position.x=THREE.MathUtils.clamp(hero.position.x,-19,19);hero.position.z=THREE.MathUtils.clamp(hero.position.z,-19,21);hero.position.y=terrainAt(hero.position.x,hero.position.z);yaw=Math.atan2(dir.x,dir.z);hero.rotation.y=THREE.MathUtils.lerp(hero.rotation.y,yaw,.18);walking+=dt*(keys.shift?12:8)}else walking+=dt*2;
 const amp=moving?1:0;legs.forEach((l,i)=>{l.rotation.x=Math.sin(walking+(i*Math.PI))*amp*.65});arms.forEach((a,i)=>{a.rotation.x=-Math.sin(walking+(i*Math.PI))*amp*.5});body.position.y=moving?Math.abs(Math.sin(walking*2))*.045:Math.sin(elapsed*1.5)*.012;
-const target=new THREE.Vector3(hero.position.x,hero.position.y+1.3,hero.position.z);const distance=7.8;const desired=new THREE.Vector3(Math.sin(camYaw)*Math.cos(camPitch)*distance,2.5+Math.sin(camPitch)*distance,Math.cos(camYaw)*Math.cos(camPitch)*distance);camera.position.lerp(target.clone().add(desired),1-Math.pow(.001,dt));camera.lookAt(target);
-markers.forEach((m,i)=>{if(i>=found)return;});if(found<5){const m=markers[found];if(m&&hero.position.distanceTo(new THREE.Vector3(m.position.x,hero.position.y,m.position.z))<1.55){found++;m.visible=false;updateTask();toast(['Una traccia…','La pietra è calda.','Un simbolo familiare.','Il sentiero si apre.','L’altare ti attende.'][found-1]);}}
-nearAltar=hero.position.distanceTo(new THREE.Vector3(altar.position.x,hero.position.y,altar.position.z))<3.2;document.getElementById('interact').style.opacity=nearAltar?'1':'.55';
+const target=new THREE.Vector3(hero.position.x,hero.position.y+1.3,hero.position.z);const distance=7.0;const desired=new THREE.Vector3(Math.sin(camYaw)*Math.cos(camPitch)*distance,2.5+Math.sin(camPitch)*distance,Math.cos(camYaw)*Math.cos(camPitch)*distance);camera.position.lerp(target.clone().add(desired),1-Math.pow(.001,dt));camera.lookAt(target);
+markers.forEach((m,i)=>{if(i>=found)return;});if(found<5){const m=markers[found];const md=hero.position.distanceTo(new THREE.Vector3(m.position.x,hero.position.y,m.position.z));document.getElementById('distance').textContent='TRACCIA '+(found+1)+' / 5 · '+Math.round(md)+' m';if(m&&md<1.8){found++;m.visible=false;updateTask();toast(['Prima traccia recuperata','Seconda traccia recuperata','Terza traccia recuperata','Quarta traccia recuperata','Tutte le tracce raccolte · trova l’altare'][found-1]);}}else{document.getElementById('distance').textContent='ALTARE · '+Math.round(hero.position.distanceTo(new THREE.Vector3(altar.position.x,hero.position.y,altar.position.z)))+' m';}
+nearAltar=hero.position.distanceTo(new THREE.Vector3(altar.position.x,hero.position.y,altar.position.z))<3.2;document.getElementById('interact').style.opacity=nearAltar&&found>=5?'1':'.45';document.getElementById('interact').textContent=nearAltar?'ATTIVA':'ESAMINA';
 }else{camera.position.set(0,8,28);camera.lookAt(0,1,-3)}
 sun.position.x=-35+Math.sin(elapsed*.05)*4;renderer.render(scene,camera)}
 updateTask();animate();
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.8))});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.5))});
 </script>
 </body></html>
