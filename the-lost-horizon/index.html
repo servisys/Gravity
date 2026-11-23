@@ -11,8 +11,8 @@
 #veil{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(8,30,35,.28),transparent 22%,transparent 65%,rgba(8,30,35,.32));z-index:2}
 #top{position:fixed;z-index:4;left:28px;top:24px;color:#fff;text-shadow:0 2px 14px #17383c;pointer-events:none}
 #eyebrow{font-size:10px;letter-spacing:.34em;font-weight:700;color:#f2d8a2;margin-bottom:8px}
-#title{font-family:Georgia,serif;font-size:clamp(22px,3vw,34px);letter-spacing:.13em;font-weight:400}
-#subtitle{font-size:11px;letter-spacing:.17em;color:#e2e9df;margin-top:6px}
+#title{font-family:Georgia,serif;font-size:clamp(20px,3vw,34px);letter-spacing:.10em;font-weight:400;white-space:nowrap}
+#subtitle{font-size:10px;letter-spacing:.13em;color:#e2e9df;margin-top:6px;white-space:nowrap;max-width:calc(100vw - 44px);overflow:hidden;text-overflow:ellipsis}
 #objective{position:fixed;z-index:4;top:26px;right:28px;width:min(270px,40vw);padding:14px 17px;border:1px solid rgba(246,229,192,.35);background:rgba(13,42,43,.42);backdrop-filter:blur(12px);color:#f5efdf;pointer-events:none}
 #objective small{display:block;color:#e6c88f;font-size:9px;letter-spacing:.22em;margin-bottom:7px}
 #objective strong{display:block;font:16px Georgia,serif;font-weight:400}#distance{margin-top:8px;color:#d9dfd0;font-size:10px;letter-spacing:.12em}#distance b{color:#f0d49c;font-weight:700}
@@ -51,12 +51,16 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/meshopt_decoder.module.js';
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x829f9c);scene.fog=new THREE.FogExp2(0x829f9c,.014);
-const camera=new THREE.PerspectiveCamera(54,innerWidth/innerHeight,.1,500);
+import { Sky } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/objects/Sky.js';
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bb9b4);scene.fog=new THREE.Fog(0x9bb9b4,42,145);
+const sky=new Sky();sky.scale.setScalar(450000);scene.add(sky);
+const skyUniforms=sky.material.uniforms;skyUniforms.turbidity.value=7;skyUniforms.rayleigh.value=2.15;skyUniforms.mieCoefficient.value=.0045;skyUniforms.mieDirectionalG.value=.82;
+const skySun=new THREE.Vector3().setFromSphericalCoords(1,THREE.MathUtils.degToRad(72),THREE.MathUtils.degToRad(215));skyUniforms.sunPosition.value.copy(skySun);
+const camera=new THREE.PerspectiveCamera(49,innerWidth/innerHeight,.1,500);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.13;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xc5d9d2,0x343d31,1.15));
-const sun=new THREE.DirectionalLight(0xffd19a,3.6);sun.position.set(-35,55,25);sun.castShadow=true;sun.shadow.mapSize.set(3072,3072);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;sun.shadow.bias=-.00025;scene.add(sun);
-const fill=new THREE.DirectionalLight(0x7ac6d0,.48);fill.position.set(35,18,-35);scene.add(fill);
+const sun=new THREE.DirectionalLight(0xffd7a8,4.0);sun.position.copy(skySun).multiplyScalar(55);sun.castShadow=true;sun.shadow.mapSize.set(3072,3072);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;sun.shadow.bias=-.00025;scene.add(sun);
+const fill=new THREE.DirectionalLight(0x91bfc0,.72);fill.position.set(35,18,-35);scene.add(fill);
 const rim=new THREE.DirectionalLight(0xffe1b0,1.25);rim.position.set(4,16,-22);scene.add(rim);
 const mat=(color,rough=.85,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
 const sand=mat(0xd6c49a),grass=mat(0x547d54),grass2=mat(0x77945b),leaf=mat(0x286b55),leaf2=mat(0x478866),bark=mat(0x76513a),stone=mat(0x9b9b83),stoneDark=mat(0x626e63),gold=mat(0xc6a45e,.38,.55);
@@ -74,7 +78,7 @@ const groundTexture=new THREE.CanvasTexture(groundCanvas);groundTexture.colorSpa
 const ground=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({map:groundTexture,roughness:1}));ground.receiveShadow=true;island.add(ground);
 const beach=new THREE.Mesh(new THREE.CylinderGeometry(24,26,3.2,96,1,true),sand);beach.position.y=-.8;beach.castShadow=true;beach.receiveShadow=true;island.add(beach);
 function addRock(x,z,s){const m=new THREE.Mesh(new THREE.DodecahedronGeometry(s,1),Math.random()>.5?stone:stoneDark);m.position.set(x,terrainY(x,z)+s*.35,z);m.scale.set(1.35,.42,1.05);m.rotation.set(Math.random(),Math.random()*3,Math.random());m.castShadow=true;m.receiveShadow=true;island.add(m)}
-for(let i=0;i<30;i++){const a=i/30*Math.PI*2,r=20+Math.sin(i*4)*1.5;addRock(Math.cos(a)*r,Math.sin(a)*r,.8+Math.random()*1.2)}
+for(let i=0;i<18;i++){const a=i/18*Math.PI*2,r=21+Math.sin(i*4)*1.2;addRock(Math.cos(a)*r,Math.sin(a)*r,.65+Math.random()*.9)}
 function palm(x,z,scale=1){const y=terrainY(x,z);const g=new THREE.Group();g.position.set(x,y,z);g.scale.setScalar(scale);proceduralVegetation.add(g);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.16,.3,5.8,9,5),bark);trunk.position.y=2.8;trunk.rotation.z=-.12;trunk.castShadow=true;g.add(trunk);for(let k=0;k<7;k++){const a=k/7*Math.PI*2;const fr=new THREE.Group();fr.position.set(0,5.45,0);fr.rotation.y=a;fr.rotation.z=-.55;const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.07,4.5,6),gold);stem.position.set(0,1.7,0);stem.rotation.z=-.22;fr.add(stem);for(let q=0;q<11;q++){const u=q/11;for(const side of [-1,1]){const f=new THREE.Mesh(new THREE.ConeGeometry(.12+u*.13,1.15,5),k%2?leaf:leaf2);f.position.set(side*(.15+u*.8),1.5-u*1.9,.28+u*1.7);f.rotation.z=side*.8;f.rotation.x=.4;fr.add(f)}}g.add(fr)}return g}
 // Procedural palms are retained only as a loading fallback.
 function fern(x,z,s=1){const g=new THREE.Group();g.position.set(x,terrainY(x,z),z);g.scale.setScalar(s);proceduralVegetation.add(g);for(let i=0;i<9;i++){const a=i/9*Math.PI*2;const stem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.04,1.6,5),leaf);stem.position.set(Math.cos(a)*.45,.65,Math.sin(a)*.45);stem.rotation.z=Math.cos(a)*.6;stem.rotation.x=Math.sin(a)*.6;g.add(stem);for(let q=0;q<5;q++){const f=new THREE.Mesh(new THREE.ConeGeometry(.12,.65,5),i%2?leaf:leaf2);const t=q/5;f.position.set(Math.cos(a)*(.2+t*.8),.3+t*.7,Math.sin(a)*(.2+t*.8));f.rotation.z=Math.cos(a)*.8;f.rotation.x=Math.sin(a)*.8;g.add(f)}}}
@@ -110,10 +114,10 @@ function addModel(url,x,z,scale=1,rotation=0){
   });
 }
 const jungleAssets=[
-  {url:'https://cdn.3dassets.dev/assets/36136/v1/model.glb',points:[[-17,-12,.78],[-19,1,.78],[17,-11,.78],[19,2,.78],[12,16,.72],[-13,16,.72]]},
-  {url:'https://cdn.3dassets.dev/assets/36137/v1/model.glb',points:[[-12,-2,.82],[12,3,.82],[-9,14,.75],[8,13,.75]]},
-  {url:'https://cdn.3dassets.dev/assets/36140/v1/model.glb',points:[[-7,5,1],[7,7,1],[-10,-8,1],[10,-8,1],[-5,-17,.9],[5,-17,.9],[0,11,.9]]},
-  {url:'https://cdn.3dassets.dev/assets/36145/v1/model.glb',points:[[-5,2,1],[5,1,1],[-8,-12,1],[8,-13,1],[-15,8,1],[15,9,1]]},
+  {url:'https://cdn.3dassets.dev/assets/36136/v1/model.glb',points:[[-17,-12,.82],[-19,1,.82],[17,-11,.82],[19,2,.82],[12,16,.78],[-13,16,.78],[-10,8,.82],[10,8,.82],[-12,0,.86],[12,0,.86],[-10,-8,.88],[10,-8,.88],[-7,-17,.82],[7,-17,.82],[0,20,.78]]},
+  {url:'https://cdn.3dassets.dev/assets/36137/v1/model.glb',points:[[-14,-3,.78],[14,3,.78],[-9,14,.78],[8,13,.78],[-15,9,.72],[15,10,.72]]},
+  {url:'https://cdn.3dassets.dev/assets/36140/v1/model.glb',points:[[-7,5,1.2],[7,7,1.2],[-10,-8,1.15],[10,-8,1.15],[-5,-17,1.1],[5,-17,1.1],[0,11,1.1],[-13,4,1],[13,5,1],[-4,-4,1.1],[4,-3,1.1]]},
+  {url:'https://cdn.3dassets.dev/assets/36145/v1/model.glb',points:[[-5,2,1.15],[5,1,1.15],[-8,-12,1.15],[8,-13,1.15],[-15,8,1],[15,9,1],[-3,-8,1.1],[3,-8,1.1],[-12,-3,1],[12,-3,1]]},
 ];
 let loadedCount=0;
 for(const pack of jungleAssets)for(const [x,z,scale] of pack.points){
@@ -125,7 +129,7 @@ addModel('https://tevy.dev/models/jungle-stepped-temple/v1/lod1.glb',0,-14,.35,0
   .catch(err=>console.warn('Temple asset unavailable',err));
 
 // Character rig: detailed stylized explorer with articulated limbs
-const hero=new THREE.Group();scene.add(hero);hero.position.set(0,terrainY(0,17),17);
+const hero=new THREE.Group();scene.add(hero);hero.position.set(0,terrainY(0,17),17);hero.rotation.y=Math.PI;
 const skin=mat(0xb97855),shirt=mat(0xc4b28c),pants=mat(0x34494a),boots=mat(0x45372e),pack=mat(0x72543b),hair=mat(0x302d27);
 function sphere(parent,r,material,pos,scale=[1,1,1]){const o=new THREE.Mesh(new THREE.SphereGeometry(r,20,16),material);o.position.set(...pos);o.scale.set(...scale);o.castShadow=true;parent.add(o);return o}
 function limb(parent,a,b,r1,r2,material){const d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a));const m=new THREE.Mesh(new THREE.CylinderGeometry(r2,r1,d.length(),10),material);m.position.copy(new THREE.Vector3(...a).add(new THREE.Vector3(...b)).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());m.castShadow=true;parent.add(m);return m}
@@ -169,7 +173,7 @@ if(started){let forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),
 if(moving){const dir=new THREE.Vector3(side,0,-forward).normalize().applyAxisAngle(new THREE.Vector3(0,1,0),camYaw);const speed=keys.shift?7.1:4.2;hero.position.x+=dir.x*speed*dt;hero.position.z+=dir.z*speed*dt;hero.position.x=THREE.MathUtils.clamp(hero.position.x,-19,19);hero.position.z=THREE.MathUtils.clamp(hero.position.z,-19,21);hero.position.y=terrainAt(hero.position.x,hero.position.z);yaw=Math.atan2(dir.x,dir.z);hero.rotation.y=THREE.MathUtils.lerp(hero.rotation.y,yaw,.18);walking+=dt*(keys.shift?12:8)}else walking+=dt*2;
 const amp=moving?1:0;legs.forEach((l,i)=>{l.rotation.x=Math.sin(walking+(i*Math.PI))*amp*.65});arms.forEach((a,i)=>{a.rotation.x=-Math.sin(walking+(i*Math.PI))*amp*.5});body.position.y=moving?Math.abs(Math.sin(walking*2))*.045:Math.sin(elapsed*1.5)*.012;
 if(heroMixer){heroMixer.update(dt);const desiredAction= moving?(keys.shift?heroRun:heroWalk):heroIdle;for(const action of [heroIdle,heroWalk,heroRun])if(action&&action!==desiredAction&&action.isRunning())action.fadeOut(.22);if(desiredAction&&!desiredAction.isRunning())desiredAction.reset().fadeIn(.22).play();}
-const target=new THREE.Vector3(hero.position.x,hero.position.y+1.18,hero.position.z);const distance=8.1;const desired=new THREE.Vector3(Math.sin(camYaw)*Math.cos(camPitch)*distance,2.8+Math.sin(camPitch)*distance,Math.cos(camYaw)*Math.cos(camPitch)*distance);camera.position.lerp(target.clone().add(desired),1-Math.pow(.001,dt));camera.lookAt(target);
+const target=new THREE.Vector3(hero.position.x,hero.position.y+1.2,hero.position.z);const distance=9.4;const desired=new THREE.Vector3(Math.sin(camYaw)*Math.cos(camPitch)*distance,2.8+Math.sin(camPitch)*distance,Math.cos(camYaw)*Math.cos(camPitch)*distance);camera.position.lerp(target.clone().add(desired),1-Math.pow(.001,dt));camera.lookAt(target);
 markers.forEach((m,i)=>{if(i>=found)return;});if(found<5){const m=markers[found];const md=hero.position.distanceTo(new THREE.Vector3(m.position.x,hero.position.y,m.position.z));document.getElementById('distance').textContent='TRACCIA '+(found+1)+' / 5 · '+Math.round(md)+' m';if(m&&md<1.8){found++;m.visible=false;updateTask();toast(['Prima traccia recuperata','Seconda traccia recuperata','Terza traccia recuperata','Quarta traccia recuperata','Tutte le tracce raccolte · trova l’altare'][found-1]);}}else{document.getElementById('distance').textContent='ALTARE · '+Math.round(hero.position.distanceTo(new THREE.Vector3(altar.position.x,hero.position.y,altar.position.z)))+' m';}
 nearAltar=hero.position.distanceTo(new THREE.Vector3(altar.position.x,hero.position.y,altar.position.z))<3.2;document.getElementById('interact').style.opacity=nearAltar&&found>=5?'1':'.45';document.getElementById('interact').textContent=nearAltar?'ATTIVA':'ESAMINA';
 }else{camera.position.set(0,8,28);camera.lookAt(0,1,-3)}
