@@ -98,7 +98,7 @@ loadSceneAsset('https://tevy.dev/models/jungle-temple-altar/v1/lod1.glb').then(s
 function addModel(url,x,z,scale=1,rotation=0){
   return loadSceneAsset(url).then(source=>{
     const model=source.clone(true);model.position.set(x,0,z);model.scale.setScalar(scale);model.rotation.y=rotation;
-    model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.side=THREE.FrontSide;}}});
+    model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
     island.add(model);const bounds=new THREE.Box3().setFromObject(model);model.position.y+=terrainY(x,z)-bounds.min.y;return model;
   });
 }
