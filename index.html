@@ -89,12 +89,12 @@ const markers=[];for(let i=0;i<5;i++){const p=pathPoints[i+1];const m=new THREE.
 const ktx2Loader=new KTX2Loader().setTranscoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis/').detectSupport(renderer);
 const gltfLoader=new GLTFLoader().setKTX2Loader(ktx2Loader).setMeshoptDecoder(MeshoptDecoder);
 const loadedAssets=new Map();
-loadSceneAsset('https://tevy.dev/models/jungle-temple-altar/v1/lod1.glb').then(source=>{const model=source.clone(true);model.scale.setScalar(1.15);model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});const bounds=new THREE.Box3().setFromObject(model);model.position.y-=bounds.min.y;altarBase.visible=false;altarTop.visible=false;altar.add(model);}).catch(err=>console.warn('Altar asset unavailable',err));
 function loadSceneAsset(url){
   if(loadedAssets.has(url))return loadedAssets.get(url);
   const promise=new Promise((resolve,reject)=>gltfLoader.load(url,g=>resolve(g.scene),undefined,reject));
   loadedAssets.set(url,promise);return promise;
 }
+loadSceneAsset('https://tevy.dev/models/jungle-temple-altar/v1/lod1.glb').then(source=>{const model=source.clone(true);model.scale.setScalar(1.15);model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});const bounds=new THREE.Box3().setFromObject(model);model.position.y-=bounds.min.y;altarBase.visible=false;altarTop.visible=false;altar.add(model);}).catch(err=>console.warn('Altar asset unavailable',err));
 function addModel(url,x,z,scale=1,rotation=0){
   return loadSceneAsset(url).then(source=>{
     const model=source.clone(true);model.position.set(x,0,z);model.scale.setScalar(scale);model.rotation.y=rotation;
