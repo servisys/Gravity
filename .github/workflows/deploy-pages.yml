@@ -1,4 +1,4 @@
-name: Build and deploy GRAVITY
+name: Build GRAVITY for web and itch.io
 
 on:
   push:
@@ -24,13 +24,13 @@ jobs:
       - name: Extract game source
         run: unzip -o GRAVITY-MVP.zip -d .
 
-      - name: Set Vite base path
+      - name: Set Vite relative asset paths
         working-directory: gravity
         run: |
           cat > vite.config.ts <<'EOF'
           import { defineConfig } from 'vite';
           export default defineConfig({
-            base: '/Gravity/',
+            base: './',
             server: { host: '0.0.0.0' },
             build: { target: 'es2022' }
           });
@@ -50,6 +50,19 @@ jobs:
       - name: Build
         working-directory: gravity
         run: npm run build
+
+      - name: Package itch.io HTML5 build
+        run: |
+          cd gravity/dist
+          zip -r ../../gravity-itch-html5.zip .
+
+      - name: Upload itch.io package
+        uses: actions/upload-artifact@v4
+        with:
+          name: gravity-itch-html5
+          path: gravity-itch-html5.zip
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
