@@ -144,9 +144,30 @@ const arms=[],legs=[];
 for(const side of [-1,1]){const arm=new THREE.Group();arm.position.set(side*.43,1.82,0);body.add(arm);limb(arm,[0,0,0],[side*.08,-.45,.02],.14,.12,shirt);limb(arm,[side*.08,-.45,.02],[side*.12,-.84,.09],.11,.085,skin);sphere(arm,.105,skin,[side*.12,-.9,.1]);arms.push(arm);
 const leg=new THREE.Group();leg.position.set(side*.2,.92,0);body.add(leg);limb(leg,[0,0,0],[0,-.48,.02],.17,.14,pants);limb(leg,[0,-.48,.02],[0,-.83,.09],.13,.1,pants);const boot=new THREE.Mesh(new THREE.BoxGeometry(.28,.17,.42),boots);boot.position.set(0,-.87,.17);boot.castShadow=true;leg.add(boot);legs.push(leg)}
 const shadow=new THREE.Mesh(new THREE.CircleGeometry(.58,32),new THREE.MeshBasicMaterial({color:0x101b16,transparent:true,opacity:.32,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.025;hero.add(shadow);
-// Keep the proportionate in-game explorer until a properly art-directed rigged model is validated.
+// CC0 third-person scout: 74-joint humanoid rig, 98k triangles, idle/walk/run/grasp clips.
 body.visible=true;
 let heroMixer=null,heroIdle=null,heroWalk=null,heroRun=null,heroModelReady=false;
+gltfLoader.load('https://cdn.3dassets.dev/assets/32901/v1/model.glb',gltf=>{
+  const model=gltf.scene;
+  model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.68,o.material.roughness??.8);}}});
+  model.scale.setScalar(1);
+  const bounds=new THREE.Box3().setFromObject(model);
+  const size=bounds.getSize(new THREE.Vector3());
+  const fit=1.82/Math.max(size.y,.01);
+  model.scale.setScalar(fit);
+  const fittedBounds=new THREE.Box3().setFromObject(model);
+  model.position.y-=fittedBounds.min.y;
+  hero.add(model);
+  body.visible=false;
+  heroModelReady=true;
+  heroMixer=new THREE.AnimationMixer(model);
+  const clip=n=>gltf.animations.find(a=>a.name.toLowerCase().includes(n));
+  const idle=clip('idle'),walk=clip('walk'),run=clip('run');
+  if(idle){heroIdle=heroMixer.clipAction(idle);heroIdle.play();}
+  if(walk)heroWalk=heroMixer.clipAction(walk);
+  if(run)heroRun=heroMixer.clipAction(run);
+  console.info('Gorgehold Scout loaded',gltf.animations.map(a=>a.name));
+},undefined,error=>console.warn('Gorgehold Scout unavailable; using fallback explorer',error));
 let yaw=0,camYaw=0,camPitch=.25,walking=0,started=false,found=0,nearAltar=false;const keys={};let drag=false,lastX=0,lastY=0;
 function terrainAt(x,z){return terrainY(x,z)}
 function updateTask(){document.getElementById('task').textContent=found<5?['Raggiungi la prima traccia','Trova la seconda traccia','Segui la terza traccia','Raggiungi la quarta traccia','Recupera l’ultima traccia'][found]:'Raggiungi l’altare antico';document.getElementById('distance').textContent=found<5?('TRACCIA '+(found+1)+' / 5 · '+Math.round(hero.position.distanceTo(markers[found].position))+' m'):'ULTIMA TAPPA · ALTARE';document.querySelector('#bar').style.width=(found/5*100)+'%'}
