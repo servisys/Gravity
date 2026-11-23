@@ -48,6 +48,7 @@
 <div id="intro"><div class="panel"><div class="kicker">A MYSTERY ADVENTURE</div><h1>THE LOST<br>HORIZON</h1><p>Un'isola dimenticata. Cinque tracce da ritrovare. Un antico altare nasconde la verità.</p><p style="font-size:12px;opacity:.82">TELEFONO · joystick a sinistra per camminare, trascina a destra per guardarti intorno.</p><button id="start">ENTRA NELL'ISOLA &nbsp; →</button></div></div>
 <script type="module">
 import * as THREE from 'three';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x91c7c2);scene.fog=new THREE.FogExp2(0x91c7c2,.0085);
 const camera=new THREE.PerspectiveCamera(54,innerWidth/innerHeight,.1,500);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.13;document.body.appendChild(renderer.domElement);
@@ -57,7 +58,7 @@ const fill=new THREE.DirectionalLight(0x7ac6d0,1.0);fill.position.set(35,18,-35)
 const mat=(color,rough=.85,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
 const sand=mat(0xd6c49a),grass=mat(0x547d54),grass2=mat(0x77945b),leaf=mat(0x286b55),leaf2=mat(0x478866),bark=mat(0x76513a),stone=mat(0x9b9b83),stoneDark=mat(0x626e63),gold=mat(0xc6a45e,.38,.55);
 const waterGeo=new THREE.PlaneGeometry(500,500,1,1);const waterMat=new THREE.MeshPhysicalMaterial({color:0x3d9d9d,roughness:.23,metalness:.12,transparent:true,opacity:.94,clearcoat:.8,clearcoatRoughness:.15});const water=new THREE.Mesh(waterGeo,waterMat);water.rotation.x=-Math.PI/2;water.position.y=-1.3;scene.add(water);
-const island=new THREE.Group();scene.add(island);
+const island=new THREE.Group();scene.add(island);const proceduralVegetation=new THREE.Group();island.add(proceduralVegetation);
 function terrainY(x,z){const r=Math.sqrt(x*x+z*z);return Math.max(-.8,2.1-r*.12+Math.sin(x*.22)*.28+Math.cos(z*.18)*.24)}
 const verts=[],inds=[],cols=[];const rings=36,segs=100;
 for(let j=0;j<=rings;j++){const t=j/rings;for(let i=0;i<=segs;i++){const a=i/segs*Math.PI*2;const edge=23+Math.sin(a*5)*1.5+Math.cos(a*8)*1.1;const r=t*edge;const x=Math.cos(a)*r,z=Math.sin(a)*r,y=terrainY(x,z);verts.push(x,y,z);const c=new THREE.Color().setHSL(.27+Math.sin(a*4+t*5)*.018,.28,.29+t*.13);cols.push(c.r,c.g,c.b);if(j<rings&&i<segs){const n=j*(segs+1)+i;inds.push(n,n+1,n+segs+1,n+1,n+segs+2,n+segs+1)}}}
@@ -65,22 +66,54 @@ const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.Float32
 const beach=new THREE.Mesh(new THREE.CylinderGeometry(24,26,3.2,96,1,true),sand);beach.position.y=-.8;beach.castShadow=true;beach.receiveShadow=true;island.add(beach);
 function addRock(x,z,s){const m=new THREE.Mesh(new THREE.DodecahedronGeometry(s,1),Math.random()>.5?stone:stoneDark);m.position.set(x,terrainY(x,z)+s*.35,z);m.scale.set(1.1,.7,.9);m.rotation.set(Math.random(),Math.random()*3,Math.random());m.castShadow=true;m.receiveShadow=true;island.add(m)}
 for(let i=0;i<65;i++){const a=i/65*Math.PI*2,r=21+Math.sin(i*4)*1.5;addRock(Math.cos(a)*r,Math.sin(a)*r,.7+Math.random()*1.8)}
-function palm(x,z,scale=1){const y=terrainY(x,z);const g=new THREE.Group();g.position.set(x,y,z);g.scale.setScalar(scale);island.add(g);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.16,.3,5.8,9,5),bark);trunk.position.y=2.8;trunk.rotation.z=-.12;trunk.castShadow=true;g.add(trunk);for(let k=0;k<7;k++){const a=k/7*Math.PI*2;const fr=new THREE.Group();fr.position.set(0,5.45,0);fr.rotation.y=a;fr.rotation.z=-.55;const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.07,4.5,6),gold);stem.position.set(0,1.7,0);stem.rotation.z=-.22;fr.add(stem);for(let q=0;q<11;q++){const u=q/11;for(const side of [-1,1]){const f=new THREE.Mesh(new THREE.ConeGeometry(.12+u*.13,1.15,5),k%2?leaf:leaf2);f.position.set(side*(.15+u*.8),1.5-u*1.9,.28+u*1.7);f.rotation.z=side*.8;f.rotation.x=.4;fr.add(f)}}g.add(fr)}return g}
-for(const p of [[-15,-5,.95],[-17,5,1.1],[14,-7,1.05],[17,4,.9],[9,13,.85],[-10,14,.8],[3,-17,.9],[-4,8,.85]])palm(...p);
-function fern(x,z,s=1){const g=new THREE.Group();g.position.set(x,terrainY(x,z),z);g.scale.setScalar(s);island.add(g);for(let i=0;i<9;i++){const a=i/9*Math.PI*2;const stem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.04,1.6,5),leaf);stem.position.set(Math.cos(a)*.45,.65,Math.sin(a)*.45);stem.rotation.z=Math.cos(a)*.6;stem.rotation.x=Math.sin(a)*.6;g.add(stem);for(let q=0;q<5;q++){const f=new THREE.Mesh(new THREE.ConeGeometry(.12,.65,5),i%2?leaf:leaf2);const t=q/5;f.position.set(Math.cos(a)*(.2+t*.8),.3+t*.7,Math.sin(a)*(.2+t*.8));f.rotation.z=Math.cos(a)*.8;f.rotation.x=Math.sin(a)*.8;g.add(f)}}}
-for(let i=0;i<42;i++){const a=i*2.399,r=8+Math.random()*11;fern(Math.cos(a)*r,Math.sin(a)*r,.55+Math.random()*.8)}
+function palm(x,z,scale=1){const y=terrainY(x,z);const g=new THREE.Group();g.position.set(x,y,z);g.scale.setScalar(scale);proceduralVegetation.add(g);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.16,.3,5.8,9,5),bark);trunk.position.y=2.8;trunk.rotation.z=-.12;trunk.castShadow=true;g.add(trunk);for(let k=0;k<7;k++){const a=k/7*Math.PI*2;const fr=new THREE.Group();fr.position.set(0,5.45,0);fr.rotation.y=a;fr.rotation.z=-.55;const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.07,4.5,6),gold);stem.position.set(0,1.7,0);stem.rotation.z=-.22;fr.add(stem);for(let q=0;q<11;q++){const u=q/11;for(const side of [-1,1]){const f=new THREE.Mesh(new THREE.ConeGeometry(.12+u*.13,1.15,5),k%2?leaf:leaf2);f.position.set(side*(.15+u*.8),1.5-u*1.9,.28+u*1.7);f.rotation.z=side*.8;f.rotation.x=.4;fr.add(f)}}g.add(fr)}return g}
+// Procedural palms are retained only as a loading fallback.
+function fern(x,z,s=1){const g=new THREE.Group();g.position.set(x,terrainY(x,z),z);g.scale.setScalar(s);proceduralVegetation.add(g);for(let i=0;i<9;i++){const a=i/9*Math.PI*2;const stem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.04,1.6,5),leaf);stem.position.set(Math.cos(a)*.45,.65,Math.sin(a)*.45);stem.rotation.z=Math.cos(a)*.6;stem.rotation.x=Math.sin(a)*.6;g.add(stem);for(let q=0;q<5;q++){const f=new THREE.Mesh(new THREE.ConeGeometry(.12,.65,5),i%2?leaf:leaf2);const t=q/5;f.position.set(Math.cos(a)*(.2+t*.8),.3+t*.7,Math.sin(a)*(.2+t*.8));f.rotation.z=Math.cos(a)*.8;f.rotation.x=Math.sin(a)*.8;g.add(f)}}}
+// Procedural ferns are retained only as a loading fallback.
 // Ancient path and temple approach
 const pathPoints=[[-3,13],[-2,10],[0,7],[1,4],[0,1],[0,-2],[0,-5]];
 for(let i=0;i<pathPoints.length;i++){const [x,z]=pathPoints[i];for(let side of [-1,1]){const b=new THREE.Mesh(new THREE.BoxGeometry(.8,.18,.95),i%2?stone:stoneDark);b.position.set(x+side*.72,terrainY(x,z)+.12,z);b.rotation.y=(i%3)*.12;b.castShadow=true;b.receiveShadow=true;island.add(b)}}
 function pillar(x,z,h=4){const base=new THREE.Mesh(new THREE.BoxGeometry(1.5,.4,1.5),stoneDark);base.position.set(x,terrainY(x,z)+.2,z);base.castShadow=true;island.add(base);const col=new THREE.Mesh(new THREE.CylinderGeometry(.48,.58,h,8),stone);col.position.set(x,terrainY(x,z)+.4+h/2,z);col.castShadow=true;col.receiveShadow=true;island.add(col);const cap=new THREE.Mesh(new THREE.BoxGeometry(1.5,.38,1.5),stoneDark);cap.position.set(x,terrainY(x,z)+.4+h,z);cap.castShadow=true;island.add(cap)}
-pillar(-4,-7,4.8);pillar(4,-7,4.8);pillar(-4,-14,4);pillar(4,-14,4);
-const lintel=new THREE.Mesh(new THREE.BoxGeometry(9,1.2,1.6),stoneDark);lintel.position.set(0,terrainY(0,-7)+5.7,-7);lintel.castShadow=true;island.add(lintel);
-const archMark=new THREE.Mesh(new THREE.TorusGeometry(1.15,.12,12,48),gold);archMark.position.set(0,terrainY(0,-7)+3.4,-7.9);archMark.castShadow=true;island.add(archMark);
-const altar=new THREE.Group();altar.position.set(0,terrainY(0,-14),-14);island.add(altar);const altarBase=new THREE.Mesh(new THREE.BoxGeometry(2.5,.6,2.5),stoneDark);altarBase.position.y=.3;altarBase.castShadow=true;altar.add(altarBase);const altarTop=new THREE.Mesh(new THREE.BoxGeometry(1.9,.35,1.9),stone);altarTop.position.y=.78;altarTop.castShadow=true;altar.add(altarTop);
+// The old block pillars are replaced by a single detailed temple asset.
+
+const altar=new THREE.Group();altar.position.set(0,terrainY(0,-6),-6);island.add(altar);const altarBase=new THREE.Mesh(new THREE.BoxGeometry(2.5,.6,2.5),stoneDark);altarBase.position.y=.3;altarBase.castShadow=true;altar.add(altarBase);const altarTop=new THREE.Mesh(new THREE.BoxGeometry(1.9,.35,1.9),stone);altarTop.position.y=.78;altarTop.castShadow=true;altar.add(altarTop);
 const sigil=new THREE.Mesh(new THREE.OctahedronGeometry(.48,1),gold);sigil.position.y=1.55;sigil.castShadow=true;altar.add(sigil);const glow=new THREE.PointLight(0xe6c47c,2.5,9);glow.position.y=1.6;altar.add(glow);
 const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05,.035,8,64),new THREE.MeshBasicMaterial({color:0xe5c37c}));ring.rotation.x=Math.PI/2;ring.position.y=1.05;altar.add(ring);
 // Glowing waymarkers
 const markers=[];for(let i=0;i<5;i++){const p=pathPoints[i+1];const m=new THREE.Group();m.position.set(p[0]+(i%2?.35:-.3),terrainY(p[0],p[1])+.18,p[1]);const orb=new THREE.Mesh(new THREE.SphereGeometry(.13,16,12),new THREE.MeshBasicMaterial({color:0xf1d28e}));const halo=new THREE.Mesh(new THREE.TorusGeometry(.34,.018,8,32),new THREE.MeshBasicMaterial({color:0xf1d28e,transparent:true,opacity:.7}));halo.rotation.x=Math.PI/2;m.add(orb,halo);const l=new THREE.PointLight(0xe6c47c,.65,3);m.add(l);island.add(m);markers.push(m)}
+
+// High-detail CC0 GLB environment assets. The procedural foliage remains as a fallback
+// until the real models have loaded successfully.
+const gltfLoader=new GLTFLoader();
+const loadedAssets=new Map();
+function loadSceneAsset(url){
+  if(loadedAssets.has(url))return loadedAssets.get(url);
+  const promise=new Promise((resolve,reject)=>gltfLoader.load(url,g=>resolve(g.scene),undefined,reject));
+  loadedAssets.set(url,promise);return promise;
+}
+function addModel(url,x,z,scale=1,rotation=0){
+  return loadSceneAsset(url).then(source=>{
+    const model=source.clone(true);model.position.set(x,0,z);model.scale.setScalar(scale);model.rotation.y=rotation;
+    model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.side=THREE.FrontSide;}}});
+    island.add(model);const bounds=new THREE.Box3().setFromObject(model);model.position.y+=terrainY(x,z)-bounds.min.y;return model;
+  });
+}
+const jungleAssets=[
+  {url:'https://cdn.3dassets.dev/assets/36136/v1/model.glb',points:[[-17,-12,.78],[-19,1,.78],[17,-11,.78],[19,2,.78],[12,16,.72],[-13,16,.72]]},
+  {url:'https://cdn.3dassets.dev/assets/36137/v1/model.glb',points:[[-12,-2,.82],[12,3,.82],[-9,14,.75],[8,13,.75]]},
+  {url:'https://cdn.3dassets.dev/assets/36140/v1/model.glb',points:[[-7,5,1],[7,7,1],[-10,-8,1],[10,-8,1],[-5,-17,.9],[5,-17,.9],[0,11,.9]]},
+  {url:'https://cdn.3dassets.dev/assets/36145/v1/model.glb',points:[[-5,2,1],[5,1,1],[-8,-12,1],[8,-13,1],[-15,8,1],[15,9,1]]},
+  {url:'https://cdn.3dassets.dev/assets/36112/v1/model.glb',points:[[-3,9,1],[0,9,1],[3,9,1],[-3,5,1],[0,5,1],[3,5,1],[-3,1,1],[0,1,1],[3,1,1]]}
+];
+let loadedCount=0;
+for(const pack of jungleAssets)for(const [x,z,scale] of pack.points){
+  addModel(pack.url,x,z,scale,Math.random()*Math.PI*2).then(()=>{loadedCount++;if(loadedCount>=8)proceduralVegetation.visible=false;}).catch(err=>console.warn('Environment asset unavailable',pack.url,err));
+}
+// Weathered, moss-covered stepped temple (CC0). Kept deliberately lighter than LOD0 for mobile.
+addModel('https://tevy.dev/models/jungle-stepped-temple/v1/lod1.glb',0,-14,.35,0)
+  .then(model=>{model.position.x=0;model.position.z=-14;})
+  .catch(err=>console.warn('Temple asset unavailable',err));
+
 // Character rig: detailed stylized explorer with articulated limbs
 const hero=new THREE.Group();scene.add(hero);hero.position.set(0,terrainY(0,17),17);
 const skin=mat(0xb97855),shirt=mat(0xc4b28c),pants=mat(0x34494a),boots=mat(0x45372e),pack=mat(0x72543b),hair=mat(0x302d27);
