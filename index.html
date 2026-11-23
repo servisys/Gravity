@@ -66,9 +66,7 @@ const mat=(color,rough=.85,metal=0)=>new THREE.MeshStandardMaterial({color,rough
 const sand=mat(0xd6c49a),grass=mat(0x547d54),grass2=mat(0x77945b),leaf=mat(0x286b55),leaf2=mat(0x478866),bark=mat(0x76513a),stone=mat(0x9b9b83),stoneDark=mat(0x626e63),gold=mat(0xc6a45e,.38,.55);
 const waterGeo=new THREE.PlaneGeometry(500,500,64,64);
 const waterMat=new THREE.MeshPhysicalMaterial({color:0x347f78,roughness:.28,metalness:.08,transparent:true,opacity:.96,clearcoat:.9,clearcoatRoughness:.12});
-waterMat.onBeforeCompile=shader=>{shader.uniforms.uHorizonTime={value:0};shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>
-uniform float uHorizonTime;');shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>
-transformed.z += sin(position.x*.075+uHorizonTime*.72)*.035 + cos(position.y*.061-uHorizonTime*.48)*.028;');waterMat.userData.shader=shader;};
+const shaderNL=String.fromCharCode(10);waterMat.onBeforeCompile=shader=>{shader.uniforms.uHorizonTime={value:0};shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>'+shaderNL+'uniform float uHorizonTime;');shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>'+shaderNL+'transformed.z += sin(position.x*.075+uHorizonTime*.72)*.035 + cos(position.y*.061-uHorizonTime*.48)*.028;');waterMat.userData.shader=shader;};
 const water=new THREE.Mesh(waterGeo,waterMat);water.rotation.x=-Math.PI/2;water.position.y=-1.3;scene.add(water);
 const island=new THREE.Group();scene.add(island);const proceduralVegetation=new THREE.Group();island.add(proceduralVegetation);
 function terrainY(x,z){const r=Math.sqrt(x*x+z*z);return Math.max(-.8,2.1-r*.12+Math.sin(x*.22)*.28+Math.cos(z*.18)*.24)}
@@ -150,8 +148,8 @@ const extraEnvironment=[
   {url:'https://tevy.dev/models/mangrove-tree/v1/lod1.glb',points:[[-18,12,.62,.2],[18,13,.62,-.4]]},
   {url:'https://tevy.dev/models/mossy-rocks/v1/lod1.glb',points:[[-18,-14,1.2,.2],[18,-14,1.1,.7],[-19,5,1.1,-.5],[19,6,1.15,.4],[-7,18,1.0,1.1],[7,18,1.0,-.8]]},
   {url:'https://tevy.dev/models/jungle-temple-ruin-rubble-pile/v1/lod1.glb',points:[[-7,-7,.9,.5],[7,-8,.85,-.4]]},
-  {url:'https://tevy.dev/models/fallen-jungle-temple-ruin-column/v1/lod1.glb',points:[[-8,-10,.9,-.3],[8,-11,.85,.6]]},
-  {url:'https://tevy.dev/models/broken-jungle-temple-ruin-wall/v1/lod1.glb',points:[[-8,-16,.85,.15],[8,-16,.85,-.2]]},
+  {url:'https://tevy.dev/models/jungle-temple-ruin-column-broken/v1/lod1.glb',points:[[-8,-10,.9,-.3],[8,-11,.85,.6]]},
+  {url:'https://tevy.dev/models/jungle-temple-ruin-wall-broken/v1/lod1.glb',points:[[-8,-16,.85,.15],[8,-16,.85,-.2]]},
   {url:'https://tevy.dev/models/long-hanging-vine/v1/lod1.glb',points:[[-12,-13,.8,.2],[12,-14,.8,-.3]]}
 ];
 for(const pack of extraEnvironment)for(const [x,z,scale,rotation] of pack.points){
