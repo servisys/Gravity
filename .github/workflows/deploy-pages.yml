@@ -7,6 +7,7 @@ on:
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -29,6 +30,22 @@ jobs:
         with:
           path: the-lost-horizon
           name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Wait for artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          for attempt in {1..12}; do
+            count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" --jq "[.artifacts[]? | select(.name == \"$ARTIFACT_NAME\" and .expired == false)] | length")
+            if [ "$count" -gt 0 ]; then
+              echo "Artifact metadata is visible."
+              exit 0
+            fi
+            echo "Artifact not indexed yet ($attempt/12); waiting 5 seconds..."
+            sleep 5
+          done
+          echo "Artifact did not become visible through the GitHub API."
+          exit 1
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
