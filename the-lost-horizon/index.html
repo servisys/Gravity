@@ -52,30 +52,33 @@ import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/
 import { KTX2Loader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/meshopt_decoder.module.js';
 import { Sky } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/objects/Sky.js';
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bb9b4);scene.fog=new THREE.Fog(0x9bb9b4,42,145);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9bb9b4);scene.fog=new THREE.Fog(0x829b8d,54,178);
 const sky=new Sky();sky.scale.setScalar(450000);scene.add(sky);
-const skyUniforms=sky.material.uniforms;skyUniforms.turbidity.value=7;skyUniforms.rayleigh.value=2.15;skyUniforms.mieCoefficient.value=.0045;skyUniforms.mieDirectionalG.value=.82;
+const skyUniforms=sky.material.uniforms;skyUniforms.turbidity.value=8.5;skyUniforms.rayleigh.value=1.75;skyUniforms.mieCoefficient.value=.0052;skyUniforms.mieDirectionalG.value=.78;
 const skySun=new THREE.Vector3().setFromSphericalCoords(1,THREE.MathUtils.degToRad(72),THREE.MathUtils.degToRad(215));skyUniforms.sunPosition.value.copy(skySun);
 const camera=new THREE.PerspectiveCamera(49,innerWidth/innerHeight,.1,1000000);
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.13;document.body.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xc5d9d2,0x343d31,1.15));
-const sun=new THREE.DirectionalLight(0xffd7a8,4.0);sun.position.copy(skySun).multiplyScalar(55);sun.castShadow=true;sun.shadow.mapSize.set(3072,3072);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;sun.shadow.bias=-.00025;scene.add(sun);
-const fill=new THREE.DirectionalLight(0x91bfc0,.72);fill.position.set(35,18,-35);scene.add(fill);
-const rim=new THREE.DirectionalLight(0xffe1b0,1.25);rim.position.set(4,16,-22);scene.add(rim);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xcfe1d9,0x3e4937,1.55));
+const sun=new THREE.DirectionalLight(0xffd5a1,3.25);sun.position.copy(skySun).multiplyScalar(55);sun.castShadow=true;sun.shadow.mapSize.set(3072,3072);sun.shadow.camera.left=-65;sun.shadow.camera.right=65;sun.shadow.camera.top=65;sun.shadow.camera.bottom=-65;sun.shadow.bias=-.00025;scene.add(sun);
+const fill=new THREE.DirectionalLight(0xa4c8bd,1.02);fill.position.set(35,18,-35);scene.add(fill);
+const rim=new THREE.DirectionalLight(0xffdfb0,1.45);rim.position.set(4,16,-22);scene.add(rim);
 const mat=(color,rough=.85,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
 const sand=mat(0xd6c49a),grass=mat(0x547d54),grass2=mat(0x77945b),leaf=mat(0x286b55),leaf2=mat(0x478866),bark=mat(0x76513a),stone=mat(0x9b9b83),stoneDark=mat(0x626e63),gold=mat(0xc6a45e,.38,.55);
-const waterGeo=new THREE.PlaneGeometry(500,500,1,1);const waterMat=new THREE.MeshPhysicalMaterial({color:0x3d9d9d,roughness:.23,metalness:.12,transparent:true,opacity:.94,clearcoat:.8,clearcoatRoughness:.15});const water=new THREE.Mesh(waterGeo,waterMat);water.rotation.x=-Math.PI/2;water.position.y=-1.3;scene.add(water);
+const waterGeo=new THREE.PlaneGeometry(500,500,64,64);
+const waterMat=new THREE.MeshPhysicalMaterial({color:0x347f78,roughness:.28,metalness:.08,transparent:true,opacity:.96,clearcoat:.9,clearcoatRoughness:.12});
+waterMat.onBeforeCompile=shader=>{shader.uniforms.uHorizonTime={value:0};shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform float uHorizonTime;');shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.z += sin(position.x*.075+uHorizonTime*.72)*.035 + cos(position.y*.061-uHorizonTime*.48)*.028;');waterMat.userData.shader=shader;};
+const water=new THREE.Mesh(waterGeo,waterMat);water.rotation.x=-Math.PI/2;water.position.y=-1.3;scene.add(water);
 const island=new THREE.Group();scene.add(island);const proceduralVegetation=new THREE.Group();island.add(proceduralVegetation);
 function terrainY(x,z){const r=Math.sqrt(x*x+z*z);return Math.max(-.8,2.1-r*.12+Math.sin(x*.22)*.28+Math.cos(z*.18)*.24)}
 const verts=[],inds=[],cols=[];const rings=48,segs=128;
-for(let j=0;j<=rings;j++){const t=j/rings;for(let i=0;i<=segs;i++){const a=i/segs*Math.PI*2;const edge=23+Math.sin(a*5)*1.5+Math.cos(a*8)*1.1;const r=t*edge;const x=Math.cos(a)*r,z=Math.sin(a)*r,y=terrainY(x,z);verts.push(x,y,z);const c=new THREE.Color().setHSL(.27+Math.sin(a*4+t*5)*.018,.28,.29+t*.13);cols.push(c.r,c.g,c.b);if(j<rings&&i<segs){const n=j*(segs+1)+i;inds.push(n,n+1,n+segs+1,n+1,n+segs+2,n+segs+1)}}}
+for(let j=0;j<=rings;j++){const t=j/rings;for(let i=0;i<=segs;i++){const a=i/segs*Math.PI*2;const edge=23+Math.sin(a*5)*1.5+Math.cos(a*8)*1.1;const r=t*edge;const x=Math.cos(a)*r,z=Math.sin(a)*r,y=terrainY(x,z);verts.push(x,y,z);const c=new THREE.Color().setHSL(.25+Math.sin(a*4+t*5)*.025,.22,.36+t*.105);cols.push(c.r,c.g,c.b);if(j<rings&&i<segs){const n=j*(segs+1)+i;inds.push(n,n+1,n+segs+1,n+1,n+segs+2,n+segs+1)}}}
 const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));tg.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));tg.setIndex(inds);tg.computeVertexNormals();const groundCanvas=document.createElement('canvas');groundCanvas.width=groundCanvas.height=1024;
 const gctx=groundCanvas.getContext('2d');gctx.fillStyle='#999477';gctx.fillRect(0,0,1024,1024);
 let seed=92831;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
 for(let i=0;i<42000;i++){const x=rand()*1024,y=rand()*1024,r=.5+rand()*5;gctx.fillStyle=['rgba(35,55,35,.18)','rgba(176,151,103,.18)','rgba(24,43,31,.15)','rgba(205,190,143,.12)'][Math.floor(rand()*4)];gctx.beginPath();gctx.ellipse(x,y,r,r*(.35+rand()*.8),rand()*3.14,0,Math.PI*2);gctx.fill()}
 for(let i=0;i<2600;i++){const x=rand()*1024,y=rand()*1024;gctx.strokeStyle='rgba(29,47,29,.18)';gctx.lineWidth=.7+rand()*1.5;gctx.beginPath();gctx.moveTo(x,y);gctx.lineTo(x+(rand()-.5)*14,y+(rand()-.5)*8);gctx.stroke()}
 const groundTexture=new THREE.CanvasTexture(groundCanvas);groundTexture.colorSpace=THREE.SRGBColorSpace;groundTexture.wrapS=groundTexture.wrapT=THREE.RepeatWrapping;groundTexture.repeat.set(2.4,2.4);groundTexture.anisotropy=8;
-const ground=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({map:groundTexture,roughness:1}));ground.receiveShadow=true;island.add(ground);
+const ground=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({map:groundTexture,bumpMap:groundTexture,bumpScale:.045,vertexColors:true,roughness:.96}));ground.receiveShadow=true;island.add(ground);
 const beach=new THREE.Mesh(new THREE.CylinderGeometry(24,26,3.2,96,1,true),sand);beach.position.y=-.8;beach.castShadow=true;beach.receiveShadow=true;island.add(beach);
 function addRock(x,z,s){const m=new THREE.Mesh(new THREE.DodecahedronGeometry(s,1),Math.random()>.5?stone:stoneDark);m.position.set(x,terrainY(x,z)+s*.35,z);m.scale.set(1.35,.42,1.05);m.rotation.set(Math.random(),Math.random()*3,Math.random());m.castShadow=true;m.receiveShadow=true;island.add(m)}
 for(let i=0;i<18;i++){const a=i/18*Math.PI*2,r=21+Math.sin(i*4)*1.2;addRock(Math.cos(a)*r,Math.sin(a)*r,.65+Math.random()*.9)}
@@ -85,7 +88,19 @@ function fern(x,z,s=1){const g=new THREE.Group();g.position.set(x,terrainY(x,z),
 // Procedural ferns are retained only as a loading fallback.
 // Ancient path and temple approach
 const pathPoints=[[-3,13],[-2,10],[0,7],[1,4],[0,1],[0,-2],[0,-5]];
-for(let i=0;i<pathPoints.length;i++){const [x,z]=pathPoints[i];for(let side of [-1,1]){const b=new THREE.Mesh(new THREE.BoxGeometry(.8,.18,.95),i%2?stone:stoneDark);b.position.set(x+side*.72,terrainY(x,z)+.12,z);b.rotation.y=(i%3)*.12;b.castShadow=true;b.receiveShadow=true;island.add(b)}}
+function makeFlagstone(x,z,sx,sz,rotation,material,seed){
+  const shape=new THREE.Shape(),pts=[];
+  for(let i=0;i<7;i++){const a=i/7*Math.PI*2;const wobble=1+Math.sin(seed*1.71+i*2.4)*.12+Math.cos(seed*.73+i*3.1)*.07;pts.push([Math.cos(a)*wobble,Math.sin(a)*wobble]);}
+  shape.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)shape.lineTo(pts[i][0],pts[i][1]);shape.closePath();
+  const geo=new THREE.ExtrudeGeometry(shape,{depth:.13,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.035,curveSegments:1});geo.rotateX(-Math.PI/2);
+  const mesh=new THREE.Mesh(geo,material);mesh.position.set(x,terrainY(x,z)+.045,z);mesh.scale.set(sx,1,sz);mesh.rotation.y=rotation;mesh.castShadow=true;mesh.receiveShadow=true;island.add(mesh);return mesh;
+}
+const pathStoneMats=[mat(0x8b8974),mat(0x777d6d),mat(0xa09a7d),mat(0x6e7568)];
+for(let i=0;i<pathPoints.length;i++){const [x,z]=pathPoints[i];
+  makeFlagstone(x-.72+(i%2)*.16,z+.12,.55+.08*(i%3),.48+(i%2)*.08,-.18+i*.09,pathStoneMats[i%4],i+2);
+  makeFlagstone(x+.68-(i%3)*.12,z-.18,.48+.1*((i+1)%3),.44+(i%2)*.1,.22-i*.07,pathStoneMats[(i+2)%4],i+11);
+  if(i%2===0)makeFlagstone(x+.04,z-.68,.34,.3,-.35,pathStoneMats[(i+1)%4],i+21);
+}
 function pillar(x,z,h=4){const base=new THREE.Mesh(new THREE.BoxGeometry(1.5,.4,1.5),stoneDark);base.position.set(x,terrainY(x,z)+.2,z);base.castShadow=true;island.add(base);const col=new THREE.Mesh(new THREE.CylinderGeometry(.48,.58,h,8),stone);col.position.set(x,terrainY(x,z)+.4+h/2,z);col.castShadow=true;col.receiveShadow=true;island.add(col);const cap=new THREE.Mesh(new THREE.BoxGeometry(1.5,.38,1.5),stoneDark);cap.position.set(x,terrainY(x,z)+.4+h,z);cap.castShadow=true;island.add(cap)}
 // The old block pillars are replaced by a single detailed temple asset.
 
@@ -123,6 +138,33 @@ let loadedCount=0;
 for(const pack of jungleAssets)for(const [x,z,scale] of pack.points){
   addModel(pack.url,x,z,scale,Math.random()*Math.PI*2).then(()=>{loadedCount++;if(loadedCount>=8)proceduralVegetation.visible=false;}).catch(err=>console.warn('Environment asset unavailable',pack.url,err));
 }
+// Additional CC0 rainforest and ruin assets: varied silhouettes, broken stonework and ground clutter.
+const extraEnvironment=[
+  {url:'https://cdn.3dassets.dev/assets/36143/v1/model.glb',points:[[-8,12,1.0,1.1],[9,11,.9,-.6]]},
+  {url:'https://cdn.3dassets.dev/assets/36141/v1/model.glb',points:[[-11,4,.9,.4],[11,-1,.85,-1.1],[6,15,.8,.7]]},
+  {url:'https://cdn.3dassets.dev/assets/36138/v1/model.glb',points:[[-8,-12,.72,0]]},
+  {url:'https://tevy.dev/models/bracken-fern/v1/lod1.glb',points:[[-8,7,.8,.2],[8,8,.85,1.1],[-11,-7,.8,-.4],[11,-9,.85,.8],[0,16,.8,0]]},
+  {url:'https://tevy.dev/models/tree-fern/v1/lod1.glb',points:[[-16,-8,.78,.3],[16,-7,.78,-.5]]},
+  {url:'https://tevy.dev/models/mangrove-tree/v1/lod1.glb',points:[[-18,12,.62,.2],[18,13,.62,-.4]]},
+  {url:'https://tevy.dev/models/mossy-rocks/v1/lod1.glb',points:[[-18,-14,1.2,.2],[18,-14,1.1,.7],[-19,5,1.1,-.5],[19,6,1.15,.4],[-7,18,1.0,1.1],[7,18,1.0,-.8]]},
+  {url:'https://tevy.dev/models/jungle-temple-ruin-rubble-pile/v1/lod1.glb',points:[[-7,-7,.9,.5],[7,-8,.85,-.4]]},
+  {url:'https://tevy.dev/models/fallen-jungle-temple-ruin-column/v1/lod1.glb',points:[[-8,-10,.9,-.3],[8,-11,.85,.6]]},
+  {url:'https://tevy.dev/models/broken-jungle-temple-ruin-wall/v1/lod1.glb',points:[[-8,-16,.85,.15],[8,-16,.85,-.2]]},
+  {url:'https://tevy.dev/models/long-hanging-vine/v1/lod1.glb',points:[[-12,-13,.8,.2],[12,-14,.8,-.3]]}
+];
+for(const pack of extraEnvironment)for(const [x,z,scale,rotation] of pack.points){
+  addModel(pack.url,x,z,scale,rotation).catch(err=>console.warn('Extra environment asset unavailable',pack.url,err));
+}
+function distantHeadland(x,z,width,height,color,seed){
+  const shape=new THREE.Shape();shape.moveTo(-width*.5,0);
+  for(let i=0;i<=12;i++){const px=-width*.5+i/12*width;const peak=Math.sin(i*.83+seed)*.22+Math.cos(i*1.61+seed*.7)*.12;shape.lineTo(px,Math.max(.12,height*(.48+peak)));}
+  shape.lineTo(width*.5,0);shape.closePath();
+  const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape,12),new THREE.MeshBasicMaterial({color,side:THREE.DoubleSide,fog:true}));
+  mesh.position.set(x,-1.25,z);island.add(mesh);
+}
+distantHeadland(-42,-92,54,8,0x526d61,1.2);
+distantHeadland(28,-108,72,11,0x60776a,2.4);
+distantHeadland(86,-94,48,7,0x718579,3.1);
 // Weathered, moss-covered stepped temple (CC0). Kept deliberately lighter than LOD0 for mobile.
 addModel('https://tevy.dev/models/jungle-stepped-temple/v1/lod1.glb',0,-14,.35,0)
   .then(model=>{model.position.x=0;model.position.z=-14;})
@@ -186,7 +228,7 @@ stick.addEventListener('pointercancel',resetStick);
 stick.addEventListener('lostpointercapture',resetStick);
 const clock=new THREE.Clock();let elapsed=0;
 function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);elapsed+=dt;
-water.position.y=-1.3+Math.sin(elapsed*.7)*.045;waterMat.color.setHSL(.49,.43,.38+Math.sin(elapsed*.3)*.018);
+water.position.y=-1.3+Math.sin(elapsed*.7)*.025;waterMat.color.setHSL(.49,.38,.31+Math.sin(elapsed*.3)*.012);if(waterMat.userData.shader)waterMat.userData.shader.uniforms.uHorizonTime.value=elapsed;
 markers.forEach((m,i)=>{m.position.y=terrainAt(m.position.x,m.position.z)+.2+Math.sin(elapsed*2+i)*.08;m.rotation.y=elapsed*.45});
 sigil.rotation.y=elapsed*.65;sigil.position.y=1.55+Math.sin(elapsed*1.8)*.12;ring.rotation.z=elapsed*.35;
 if(started){let forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),side=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const moving=Math.hypot(forward,side)>0;
