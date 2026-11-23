@@ -49,6 +49,8 @@
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+import { KTX2Loader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/KTX2Loader.js';
+import { MeshoptDecoder } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/meshopt_decoder.module.js';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x91c7c2);scene.fog=new THREE.FogExp2(0x91c7c2,.0085);
 const camera=new THREE.PerspectiveCamera(54,innerWidth/innerHeight,.1,500);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.13;document.body.appendChild(renderer.domElement);
@@ -84,13 +86,15 @@ const markers=[];for(let i=0;i<5;i++){const p=pathPoints[i+1];const m=new THREE.
 
 // High-detail CC0 GLB environment assets. The procedural foliage remains as a fallback
 // until the real models have loaded successfully.
-const gltfLoader=new GLTFLoader();
+const ktx2Loader=new KTX2Loader().setTranscoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis/').detectSupport(renderer);
+const gltfLoader=new GLTFLoader().setKTX2Loader(ktx2Loader).setMeshoptDecoder(MeshoptDecoder);
 const loadedAssets=new Map();
 function loadSceneAsset(url){
   if(loadedAssets.has(url))return loadedAssets.get(url);
   const promise=new Promise((resolve,reject)=>gltfLoader.load(url,g=>resolve(g.scene),undefined,reject));
   loadedAssets.set(url,promise);return promise;
 }
+loadSceneAsset('https://tevy.dev/models/jungle-temple-altar/v1/lod1.glb').then(source=>{const model=source.clone(true);model.scale.setScalar(1.15);model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});const bounds=new THREE.Box3().setFromObject(model);model.position.y-=bounds.min.y;altarBase.visible=false;altarTop.visible=false;altar.add(model);}).catch(err=>console.warn('Altar asset unavailable',err));
 function addModel(url,x,z,scale=1,rotation=0){
   return loadSceneAsset(url).then(source=>{
     const model=source.clone(true);model.position.set(x,0,z);model.scale.setScalar(scale);model.rotation.y=rotation;
