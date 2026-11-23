@@ -24,6 +24,17 @@ jobs:
       - name: Extract game source
         run: unzip -o GRAVITY-MVP.zip -d .
 
+      - name: Fix trailing CSS escape in uploaded source
+        working-directory: gravity
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("src/styles.css")
+          css = p.read_text()
+          if css.endswith(r"\n"):
+              p.write_text(css[:-2] + "\n")
+          PY
+
       - name: Set Vite relative asset paths
         working-directory: gravity
         run: |
