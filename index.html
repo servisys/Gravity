@@ -147,7 +147,7 @@ const shadow=new THREE.Mesh(new THREE.CircleGeometry(.58,32),new THREE.MeshBasic
 // Hiker explorer: CC0 humanoid with backpack, outdoor clothing and authored idle/walk/look-around/wave clips.
 body.visible=true;
 let heroMixer=null,heroIdle=null,heroWalk=null,heroLook=null,heroWave=null,heroActiveAction=null,heroModelReady=false;
-gltfLoader.load('https://tevy.dev/models/hiker/v1/lod0.glb',gltf=>{
+gltfLoader.load('./assets/the-lost-horizon-explorer.glb',gltf=>{
   const model=gltf.scene;
   model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.72,o.material.roughness??.8);}}});
   const rawBounds=new THREE.Box3().setFromObject(model);
