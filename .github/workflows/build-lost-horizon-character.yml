@@ -47,8 +47,16 @@ jobs:
             --out out 2>&1 | tee ara3d-build.log
           MODEL="$(find out -maxdepth 1 -type f -name '*.glb' -print -quit)"
           test -n "$MODEL"
+          echo "Generated source model:"
+          ls -lh "$MODEL"
+          npx --yes @gltf-transform/cli@4.5.1 optimize "$MODEL" out/optimized.glb \
+            --no-flatten --no-join --no-simplify \
+            --compress meshopt --meshopt-level medium \
+            --texture-compress webp --texture-size 1024
+          echo "Optimized mobile model:"
+          ls -lh out/optimized.glb
           mkdir -p assets
-          cp "$MODEL" assets/the-lost-horizon-explorer.glb
+          cp out/optimized.glb assets/the-lost-horizon-explorer.glb
 
       - name: Save generator diagnostics
         if: always()
