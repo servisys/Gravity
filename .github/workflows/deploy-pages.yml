@@ -1,98 +1,33 @@
-name: Build GRAVITY for web and itch.io
-
+name: Deploy THE LOST HORIZON
 on:
   push:
     branches: [main]
+    paths:
+      - 'the-lost-horizon/**'
+      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
-
 permissions:
   contents: read
   pages: write
   id-token: write
-
 concurrency:
   group: pages
   cancel-in-progress: true
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Extract game source
-        run: unzip -o GRAVITY-MVP.zip -d .
-
-      - name: Apply visual refresh
-        run: python patches/apply_visual_refresh.py
-
-      - name: Fix trailing CSS escape in uploaded source
-        working-directory: gravity
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          p = Path("src/styles.css")
-          css = p.read_text()
-          if css.endswith(r"\n"):
-              p.write_text(css[:-2] + "\n")
-          PY
-
-      - name: Set Vite relative asset paths
-        working-directory: gravity
-        run: |
-          cat > vite.config.ts <<'EOF'
-          import { defineConfig } from 'vite';
-          export default defineConfig({
-            base: './',
-            server: { host: '0.0.0.0' },
-            build: { target: 'es2022' }
-          });
-          EOF
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: gravity/package.json
-
-      - name: Install dependencies
-        working-directory: gravity
-        run: npm install
-
-      - name: Build
-        working-directory: gravity
-        run: npm run build
-
-      - name: Package itch.io HTML5 build
-        run: |
-          cd gravity/dist
-          zip -r ../../gravity-itch-html5.zip .
-
-      - name: Upload itch.io package
-        uses: actions/upload-artifact@v4
-        with:
-          name: gravity-itch-html5
-          path: gravity-itch-html5.zip
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: gravity/dist
-
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: the-lost-horizon
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
