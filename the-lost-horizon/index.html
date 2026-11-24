@@ -207,10 +207,16 @@ const leg=new THREE.Group();leg.position.set(side*.2,.92,0);body.add(leg);limb(l
 const shadow=new THREE.Mesh(new THREE.CircleGeometry(.58,32),new THREE.MeshBasicMaterial({color:0x101b16,transparent:true,opacity:.32,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.025;hero.add(shadow);
 // Hiker explorer: CC0 humanoid with backpack, outdoor clothing and authored idle/walk/look-around/wave clips.
 body.visible=true;
-let heroMixer=null,heroIdle=null,heroWalk=null,heroLook=null,heroWave=null,heroActiveAction=null,heroModelReady=false;
+let heroMixer=null,heroIdle=null,heroWalk=null,heroRun=null,heroLook=null,heroWave=null,heroActiveAction=null,heroModelReady=false,heroGestureLock=false,heroLookCooldown=11;
+function playHeroAction(next,duration=.28){
+  if(!next||next===heroActiveAction)return;
+  if(heroActiveAction)heroActiveAction.crossFadeTo(next,duration,false);
+  next.reset().fadeIn(duration).play();
+  heroActiveAction=next;
+}
 gltfLoader.load('../assets/the-lost-horizon-explorer.glb',gltf=>{
   const model=gltf.scene;
-  model.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.72,o.material.roughness??.8);}}});
+  model.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;if(o.material){o.material.roughness=Math.max(.68,o.material.roughness??.8);o.material.envMapIntensity=1.12;}}});
   const rawBounds=new THREE.Box3().setFromObject(model);
   const rawSize=rawBounds.getSize(new THREE.Vector3());
   model.scale.setScalar(1.62/Math.max(rawSize.y,.01));
@@ -221,18 +227,25 @@ gltfLoader.load('../assets/the-lost-horizon-explorer.glb',gltf=>{
   heroModelReady=true;
   heroMixer=new THREE.AnimationMixer(model);
   const clip=n=>gltf.animations.find(a=>a.name.toLowerCase().includes(n));
-  const idle=clip('idle'),walk=clip('walk'),look=clip('look_around'),wave=clip('wave');
+  const idle=clip('idle'),walk=clip('walk'),run=clip('run'),look=clip('look_around'),wave=clip('wave');
   if(idle){heroIdle=heroMixer.clipAction(idle);heroIdle.play();heroActiveAction=heroIdle;}
   if(walk)heroWalk=heroMixer.clipAction(walk);
-  if(look)heroLook=heroMixer.clipAction(look);
-  if(wave)heroWave=heroMixer.clipAction(wave);
+  if(run)heroRun=heroMixer.clipAction(run);
+  if(look){heroLook=heroMixer.clipAction(look);heroLook.setLoop(THREE.LoopOnce,1);heroLook.clampWhenFinished=true;}
+  if(wave){heroWave=heroMixer.clipAction(wave);heroWave.setLoop(THREE.LoopOnce,1);heroWave.clampWhenFinished=true;}
+  heroMixer.addEventListener('finished',event=>{
+    if((event.action===heroLook||event.action===heroWave)&&heroActiveAction===event.action){
+      heroGestureLock=false;
+      playHeroAction(heroIdle,.32);
+    }
+  });
   console.info('Hiker explorer loaded',gltf.animations.map(a=>a.name));
 },undefined,error=>console.warn('Hiker explorer unavailable; using fallback explorer',error));
 let yaw=0,camYaw=0,camPitch=.25,walking=0,started=false,found=0,nearAltar=false;const keys={};let drag=false,lastX=0,lastY=0;
 function terrainAt(x,z){return terrainY(x,z)}
 function updateTask(){document.getElementById('task').textContent=found<5?['Raggiungi la prima traccia','Trova la seconda traccia','Segui la terza traccia','Raggiungi la quarta traccia','Recupera l’ultima traccia'][found]:'Raggiungi l’altare antico';document.getElementById('distance').textContent=found<5?('TRACCIA '+(found+1)+' / 5 · '+Math.round(hero.position.distanceTo(markers[found].position))+' m'):'ULTIMA TAPPA · ALTARE';document.querySelector('#bar').style.width=(found/5*100)+'%'}
 function toast(s){const t=document.getElementById('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
-function interact(){if(!started)return;if(nearAltar&&found>=5){toast('Il simbolo si accende. L’isola… ti riconosce.');sigil.material= new THREE.MeshStandardMaterial({color:0xffe2a1,emissive:0x9c6420,emissiveIntensity:1.4,metalness:.55,roughness:.25});glow.intensity=5;document.getElementById('task').textContent='Un ricordo riaffiora…';document.getElementById('hint').textContent='CAPITOLO I COMPLETATO — qualcosa si è risvegliato';}else if(nearAltar){toast('L’altare è incompleto. Segui ancora le luci.')}else{toast('Le rovine sembrano indicare il sentiero.')}} 
+function interact(){if(!started)return;if(nearAltar&&found>=5){if(heroWave&&!heroGestureLock){heroGestureLock=true;playHeroAction(heroWave,.28);}toast('Il simbolo si accende. L’isola… ti riconosce.');sigil.material= new THREE.MeshStandardMaterial({color:0xffe2a1,emissive:0x9c6420,emissiveIntensity:1.4,metalness:.55,roughness:.25});glow.intensity=5;document.getElementById('task').textContent='Un ricordo riaffiora…';document.getElementById('hint').textContent='CAPITOLO I COMPLETATO — qualcosa si è risvegliato';}else if(nearAltar){toast('L’altare è incompleto. Segui ancora le luci.')}else{toast('Le rovine sembrano indicare il sentiero.')}} 
 document.getElementById('interact').addEventListener('click',interact);
 document.getElementById('start').addEventListener('click',()=>{started=true;document.getElementById('intro').classList.add('hidden');toast('Il vento porta una voce…')});
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='e')interact()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
@@ -254,13 +267,23 @@ if(started){let forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),
 if(moving){const dir=new THREE.Vector3(side,0,-forward).normalize().applyAxisAngle(new THREE.Vector3(0,1,0),camYaw);const speed=keys.shift?7.0:5.0;hero.position.x+=dir.x*speed*dt;hero.position.z+=dir.z*speed*dt;hero.position.x=THREE.MathUtils.clamp(hero.position.x,-19,19);hero.position.z=THREE.MathUtils.clamp(hero.position.z,-19,21);hero.position.y=terrainAt(hero.position.x,hero.position.z);yaw=Math.atan2(dir.x,dir.z);hero.rotation.y=THREE.MathUtils.lerp(hero.rotation.y,yaw,.18);walking+=dt*(keys.shift?12:8)}else walking+=dt*2;
 const amp=moving?1:0;legs.forEach((l,i)=>{l.rotation.x=Math.sin(walking+(i*Math.PI))*amp*.65});arms.forEach((a,i)=>{a.rotation.x=-Math.sin(walking+(i*Math.PI))*amp*.5});body.position.y=moving?Math.abs(Math.sin(walking*2))*.045:Math.sin(elapsed*1.5)*.012;
 if(heroMixer){
-  const desiredAction=moving?heroWalk:heroIdle;
-  if(desiredAction&&desiredAction!==heroActiveAction){
-    if(heroActiveAction)heroActiveAction.crossFadeTo(desiredAction,.2,false);
-    desiredAction.reset().fadeIn(.2).play();
-    heroActiveAction=desiredAction;
+  if(moving){
+    heroGestureLock=false;
+    const locomotion=keys.shift?(heroRun||heroWalk):heroWalk;
+    playHeroAction(locomotion,.2);
+    if(heroWalk)heroWalk.timeScale=keys.shift&&!heroRun?1.62:1.18;
+    if(heroRun)heroRun.timeScale=1;
+  }else{
+    if(heroGestureLock&&heroActiveAction!==heroLook&&heroActiveAction!==heroWave)heroGestureLock=false;
+    if(!heroGestureLock){
+      heroLookCooldown-=dt;
+      if(heroLook&&heroLookCooldown<=0){
+        heroGestureLock=true;
+        heroLookCooldown=15+Math.random()*9;
+        playHeroAction(heroLook,.32);
+      }else playHeroAction(heroIdle,.3);
+    }
   }
-  if(heroWalk)heroWalk.timeScale=keys.shift?1.55:1.28;
   heroMixer.update(dt);
 }
 cameraTarget.set(hero.position.x,hero.position.y+1.0,hero.position.z);const distance=13.2;cameraOffset.set(Math.sin(camYaw)*Math.cos(camPitch)*distance,2.8+Math.sin(camPitch)*distance,Math.cos(camYaw)*Math.cos(camPitch)*distance);cameraFollowTarget.copy(cameraTarget).add(cameraOffset);camera.position.lerp(cameraFollowTarget,1-Math.pow(.001,dt));camera.lookAt(cameraTarget);
